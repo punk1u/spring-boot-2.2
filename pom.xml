@@ -14,7 +14,6 @@
 		<main.basedir>${basedir}</main.basedir>
 		<disable.checks>true</disable.checks>
 	</properties>
-
 	<!-- Most elements are in profiles so they are stripped out during maven-flatten -->
 	<profiles>
 		<!-- Default profile for command line build -->
