@@ -18,6 +18,7 @@ package org.springframework.boot.loader.jar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -67,9 +68,11 @@ final class JarURLConnection extends java.net.JarURLConnection {
 
 	private static final JarEntryName EMPTY_JAR_ENTRY_NAME = new JarEntryName(new StringSequence(""));
 
+	private static final String READ_ACTION = "read";
+
 	private static final JarURLConnection NOT_FOUND_CONNECTION = JarURLConnection.notFound();
 
-	private final AbstractJarFile jarFile;
+	private final JarFile jarFile;
 
 	private Permission permission;
 
@@ -77,9 +80,9 @@ final class JarURLConnection extends java.net.JarURLConnection {
 
 	private final JarEntryName jarEntryName;
 
-	private java.util.jar.JarEntry jarEntry;
+	private JarEntry jarEntry;
 
-	private JarURLConnection(URL url, AbstractJarFile jarFile, JarEntryName jarEntryName) throws IOException {
+	private JarURLConnection(URL url, JarFile jarFile, JarEntryName jarEntryName) throws IOException {
 		// What we pass to super is ultimately ignored
 		super(EMPTY_JAR_URL);
 		this.url = url;
@@ -102,7 +105,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 	}
 
 	@Override
-	public java.util.jar.JarFile getJarFile() throws IOException {
+	public JarFile getJarFile() throws IOException {
 		connect();
 		return this.jarFile;
 	}
@@ -135,7 +138,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 	}
 
 	@Override
-	public java.util.jar.JarEntry getJarEntry() throws IOException {
+	public JarEntry getJarEntry() throws IOException {
 		if (this.jarEntryName == null || this.jarEntryName.isEmpty()) {
 			return null;
 		}
@@ -160,7 +163,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 			throw new IOException("no entry name specified");
 		}
 		connect();
-		InputStream inputStream = (this.jarEntryName.isEmpty() ? this.jarFile.getInputStream()
+		InputStream inputStream = (this.jarEntryName.isEmpty() ? this.jarFile.getData().getInputStream()
 				: this.jarFile.getInputStream(this.jarEntry));
 		if (inputStream == null) {
 			throwFileNotFound(this.jarEntryName, this.jarFile);
@@ -168,7 +171,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 		return inputStream;
 	}
 
-	private void throwFileNotFound(Object entry, AbstractJarFile jarFile) throws FileNotFoundException {
+	private void throwFileNotFound(Object entry, JarFile jarFile) throws FileNotFoundException {
 		if (Boolean.TRUE.equals(useFastExceptions.get())) {
 			throw FILE_NOT_FOUND_EXCEPTION;
 		}
@@ -193,7 +196,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 			if (this.jarEntryName.isEmpty()) {
 				return this.jarFile.size();
 			}
-			java.util.jar.JarEntry entry = getJarEntry();
+			JarEntry entry = getJarEntry();
 			return (entry != null) ? (int) entry.getSize() : -1;
 		}
 		catch (IOException ex) {
@@ -218,7 +221,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 			throw FILE_NOT_FOUND_EXCEPTION;
 		}
 		if (this.permission == null) {
-			this.permission = this.jarFile.getPermission();
+			this.permission = new FilePermission(this.jarFile.getRootJarFile().getFile().getPath(), READ_ACTION);
 		}
 		return this.permission;
 	}
@@ -229,7 +232,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 			return 0;
 		}
 		try {
-			java.util.jar.JarEntry entry = getJarEntry();
+			JarEntry entry = getJarEntry();
 			return (entry != null) ? entry.getTime() : 0;
 		}
 		catch (IOException ex) {
@@ -263,7 +266,7 @@ final class JarURLConnection extends java.net.JarURLConnection {
 				&& !jarFile.containsEntry(jarEntryName.toString())) {
 			return NOT_FOUND_CONNECTION;
 		}
-		return new JarURLConnection(url, new JarFileWrapper(jarFile), jarEntryName);
+		return new JarURLConnection(url, new JarFile(jarFile), jarEntryName);
 	}
 
 	private static int indexOfRootSpec(StringSequence file, String pathFromRoot) {

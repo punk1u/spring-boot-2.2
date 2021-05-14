@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,21 +32,20 @@ import java.util.jar.Manifest;
  */
 class JarEntry extends java.util.jar.JarEntry implements FileHeader {
 
-	private final int index;
-
 	private final AsciiBytes name;
 
 	private final AsciiBytes headerName;
+
+	private Certificate[] certificates;
+
+	private CodeSigner[] codeSigners;
 
 	private final JarFile jarFile;
 
 	private long localHeaderOffset;
 
-	private volatile JarEntryCertification certification;
-
-	JarEntry(JarFile jarFile, int index, CentralDirectoryFileHeader header, AsciiBytes nameAlias) {
+	JarEntry(JarFile jarFile, CentralDirectoryFileHeader header, AsciiBytes nameAlias) {
 		super((nameAlias != null) ? nameAlias.toString() : header.getName().toString());
-		this.index = index;
 		this.name = (nameAlias != null) ? nameAlias : header.getName();
 		this.headerName = header.getName();
 		this.jarFile = jarFile;
@@ -60,10 +59,6 @@ class JarEntry extends java.util.jar.JarEntry implements FileHeader {
 		if (header.hasExtra()) {
 			setExtra(header.getExtra());
 		}
-	}
-
-	int getIndex() {
-		return this.index;
 	}
 
 	AsciiBytes getAsciiBytesName() {
@@ -92,24 +87,23 @@ class JarEntry extends java.util.jar.JarEntry implements FileHeader {
 
 	@Override
 	public Certificate[] getCertificates() {
-		return getCertification().getCertificates();
+		if (this.jarFile.isSigned() && this.certificates == null) {
+			this.jarFile.setupEntryCertificates(this);
+		}
+		return this.certificates;
 	}
 
 	@Override
 	public CodeSigner[] getCodeSigners() {
-		return getCertification().getCodeSigners();
+		if (this.jarFile.isSigned() && this.codeSigners == null) {
+			this.jarFile.setupEntryCertificates(this);
+		}
+		return this.codeSigners;
 	}
 
-	private JarEntryCertification getCertification() {
-		if (!this.jarFile.isSigned()) {
-			return JarEntryCertification.NONE;
-		}
-		JarEntryCertification certification = this.certification;
-		if (certification == null) {
-			certification = this.jarFile.getCertification(this);
-			this.certification = certification;
-		}
-		return certification;
+	void setCertificates(java.util.jar.JarEntry entry) {
+		this.certificates = entry.getCertificates();
+		this.codeSigners = entry.getCodeSigners();
 	}
 
 	@Override

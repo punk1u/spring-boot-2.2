@@ -26,7 +26,7 @@ class MvcConfiguration extends WebMvcConfigurerAdapter {
 		log.info "Creating interceptor"
 		[
 			postHandle: { request, response, handler, mav ->
-				MvcConfiguration.log.info "Intercepted: model=" + mav.model
+				log.info "Intercepted: model=" + mav.model
 			}
 		] as HandlerInterceptorAdapter
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package org.springframework.boot.web.servlet.support;
 
 import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Map;
 
-import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
 import org.junit.jupiter.api.AfterEach;
@@ -34,14 +31,12 @@ import org.springframework.boot.testsupport.system.CapturedOutput;
 import org.springframework.boot.testsupport.system.OutputCaptureExtension;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServer;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.core.Ordered;
 import org.springframework.core.env.PropertySource;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.WebApplicationContext;
@@ -111,49 +106,6 @@ class SpringBootServletInitializerTests {
 			try (AbstractApplicationContext context = (AbstractApplicationContext) new WithErrorPageFilterNotRegistered()
 					.createRootApplicationContext(servletContext)) {
 				assertThat(context.getBeansOfType(ErrorPageFilter.class)).hasSize(0);
-			}
-		});
-		try {
-			webServer.start();
-		}
-		finally {
-			webServer.stop();
-		}
-	}
-
-	@Test
-	@SuppressWarnings("rawtypes")
-	void errorPageFilterIsRegisteredWithNearHighestPrecedence() {
-		WebServer webServer = new UndertowServletWebServerFactory(0).getWebServer((servletContext) -> {
-			try (AbstractApplicationContext context = (AbstractApplicationContext) new WithErrorPageFilter()
-					.createRootApplicationContext(servletContext)) {
-				Map<String, FilterRegistrationBean> registrations = context
-						.getBeansOfType(FilterRegistrationBean.class);
-				assertThat(registrations).hasSize(1);
-				FilterRegistrationBean errorPageFilterRegistration = registrations.get("errorPageFilterRegistration");
-				assertThat(errorPageFilterRegistration.getOrder()).isEqualTo(Ordered.HIGHEST_PRECEDENCE + 1);
-			}
-		});
-		try {
-			webServer.start();
-		}
-		finally {
-			webServer.stop();
-		}
-	}
-
-	@Test
-	@SuppressWarnings("rawtypes")
-	void errorPageFilterIsRegisteredForRequestAndAsyncDispatch() {
-		WebServer webServer = new UndertowServletWebServerFactory(0).getWebServer((servletContext) -> {
-			try (AbstractApplicationContext context = (AbstractApplicationContext) new WithErrorPageFilter()
-					.createRootApplicationContext(servletContext)) {
-				Map<String, FilterRegistrationBean> registrations = context
-						.getBeansOfType(FilterRegistrationBean.class);
-				assertThat(registrations).hasSize(1);
-				FilterRegistrationBean errorPageFilterRegistration = registrations.get("errorPageFilterRegistration");
-				assertThat(errorPageFilterRegistration).hasFieldOrPropertyWithValue("dispatcherTypes",
-						EnumSet.of(DispatcherType.ASYNC, DispatcherType.REQUEST));
 			}
 		});
 		try {
@@ -244,11 +196,6 @@ class SpringBootServletInitializerTests {
 		WithErrorPageFilterNotRegistered() {
 			setRegisterErrorPageFilter(false);
 		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class WithErrorPageFilter extends SpringBootServletInitializer {
 
 	}
 

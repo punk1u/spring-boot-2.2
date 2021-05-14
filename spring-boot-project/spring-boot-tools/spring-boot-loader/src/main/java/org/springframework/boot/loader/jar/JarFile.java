@@ -17,7 +17,6 @@
 package org.springframework.boot.loader.jar;
 
 import java.io.File;
-import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
@@ -25,10 +24,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
-import java.security.Permission;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.function.Supplier;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
@@ -49,7 +48,7 @@ import org.springframework.boot.loader.data.RandomAccessDataFile;
  * @author Andy Wilkinson
  * @since 1.0.0
  */
-public class JarFile extends AbstractJarFile {
+public class JarFile extends java.util.jar.JarFile {
 
 	private static final String MANIFEST_NAME = "META-INF/MANIFEST.MF";
 
@@ -61,7 +60,7 @@ public class JarFile extends AbstractJarFile {
 
 	private static final AsciiBytes SIGNATURE_FILE_EXTENSION = new AsciiBytes(".SF");
 
-	private static final String READ_ACTION = "read";
+	private final JarFile parent;
 
 	private final RandomAccessDataFile rootFile;
 
@@ -106,6 +105,28 @@ public class JarFile extends AbstractJarFile {
 	}
 
 	/**
+	 * Create a new JarFile copy based on a given parent.
+	 * @param parent the parent jar
+	 * @throws IOException if the file cannot be read
+	 */
+	JarFile(JarFile parent) throws IOException {
+		super(parent.rootFile.getFile());
+		super.close();
+		this.parent = parent;
+		this.rootFile = parent.rootFile;
+		this.pathFromRoot = parent.pathFromRoot;
+		this.data = parent.data;
+		this.type = parent.type;
+		this.url = parent.url;
+		this.urlString = parent.urlString;
+		this.entries = parent.entries;
+		this.manifestSupplier = parent.manifestSupplier;
+		this.manifest = parent.manifest;
+		this.signed = parent.signed;
+		this.comment = parent.comment;
+	}
+
+	/**
 	 * Private constructor used to create a new {@link JarFile} either directly or from a
 	 * nested entry.
 	 * @param rootFile the root jar file
@@ -116,13 +137,14 @@ public class JarFile extends AbstractJarFile {
 	 */
 	private JarFile(RandomAccessDataFile rootFile, String pathFromRoot, RandomAccessData data, JarFileType type)
 			throws IOException {
-		this(rootFile, pathFromRoot, data, null, type, null);
+		this(null, rootFile, pathFromRoot, data, null, type, null);
 	}
 
-	private JarFile(RandomAccessDataFile rootFile, String pathFromRoot, RandomAccessData data, JarEntryFilter filter,
-			JarFileType type, Supplier<Manifest> manifestSupplier) throws IOException {
+	private JarFile(JarFile parent, RandomAccessDataFile rootFile, String pathFromRoot, RandomAccessData data,
+			JarEntryFilter filter, JarFileType type, Supplier<Manifest> manifestSupplier) throws IOException {
 		super(rootFile.getFile());
 		super.close();
+		this.parent = parent;
 		this.rootFile = rootFile;
 		this.pathFromRoot = pathFromRoot;
 		CentralDirectoryParser parser = new CentralDirectoryParser();
@@ -172,9 +194,8 @@ public class JarFile extends AbstractJarFile {
 		};
 	}
 
-	@Override
-	Permission getPermission() {
-		return new FilePermission(this.rootFile.getFile().getPath(), READ_ACTION);
+	JarFile getParent() {
+		return this.parent;
 	}
 
 	protected final RandomAccessDataFile getRootJarFile() {
@@ -221,11 +242,6 @@ public class JarFile extends AbstractJarFile {
 	@Override
 	public ZipEntry getEntry(String name) {
 		return this.entries.getEntry(name);
-	}
-
-	@Override
-	InputStream getInputStream() throws IOException {
-		return this.data.getInputStream();
 	}
 
 	@Override
@@ -280,8 +296,9 @@ public class JarFile extends AbstractJarFile {
 			}
 			return null;
 		};
-		return new JarFile(this.rootFile, this.pathFromRoot + "!/" + entry.getName().substring(0, name.length() - 1),
-				this.data, filter, JarFileType.NESTED_DIRECTORY, this.manifestSupplier);
+		return new JarFile(this, this.rootFile,
+				this.pathFromRoot + "!/" + entry.getName().substring(0, name.length() - 1), this.data, filter,
+				JarFileType.NESTED_DIRECTORY, this.manifestSupplier);
 	}
 
 	private JarFile createJarFileFromFileEntry(JarEntry entry) throws IOException {
@@ -312,7 +329,7 @@ public class JarFile extends AbstractJarFile {
 			return;
 		}
 		this.closed = true;
-		if (this.type == JarFileType.DIRECT) {
+		if (this.type == JarFileType.DIRECT && this.parent == null) {
 			this.rootFile.close();
 		}
 	}
@@ -328,7 +345,12 @@ public class JarFile extends AbstractJarFile {
 		return this.urlString;
 	}
 
-	@Override
+	/**
+	 * Return a URL that can be used to access this JAR file. NOTE: the specified URL
+	 * cannot be serialized and or cloned.
+	 * @return the URL
+	 * @throws MalformedURLException if the URL is malformed
+	 */
 	public URL getUrl() throws MalformedURLException {
 		if (this.url == null) {
 			String file = this.rootFile.getFile().toURI() + this.pathFromRoot + "!/";
@@ -352,12 +374,30 @@ public class JarFile extends AbstractJarFile {
 		return this.signed;
 	}
 
-	JarEntryCertification getCertification(JarEntry entry) {
+	void setupEntryCertificates(JarEntry entry) {
+		// Fallback to JarInputStream to obtain certificates, not fast but hopefully not
+		// happening that often.
 		try {
-			return this.entries.getCertification(entry);
+			try (JarInputStream inputStream = new JarInputStream(getData().getInputStream())) {
+				java.util.jar.JarEntry certEntry = inputStream.getNextJarEntry();
+				while (certEntry != null) {
+					inputStream.closeEntry();
+					if (entry.getName().equals(certEntry.getName())) {
+						setCertificates(entry, certEntry);
+					}
+					setCertificates(getJarEntry(certEntry.getName()), certEntry);
+					certEntry = inputStream.getNextJarEntry();
+				}
+			}
 		}
 		catch (IOException ex) {
 			throw new IllegalStateException(ex);
+		}
+	}
+
+	private void setCertificates(JarEntry entry, java.util.jar.JarEntry certEntry) {
+		if (entry != null) {
+			entry.setCertificates(certEntry);
 		}
 	}
 
@@ -369,7 +409,6 @@ public class JarFile extends AbstractJarFile {
 		return this.pathFromRoot;
 	}
 
-	@Override
 	JarFileType getType() {
 		return this.type;
 	}
@@ -397,6 +436,15 @@ public class JarFile extends AbstractJarFile {
 		catch (Error ex) {
 			// Ignore
 		}
+	}
+
+	/**
+	 * The type of a {@link JarFile}.
+	 */
+	enum JarFileType {
+
+		DIRECT, NESTED_DIRECTORY, NESTED_JAR
+
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.springframework.beans.BeanUtils;
@@ -127,17 +124,11 @@ class JavaBeanBinder implements DataObjectBinder {
 
 		private void addProperties(Class<?> type) {
 			while (type != null && !Object.class.equals(type)) {
-				Method[] declaredMethods = getSorted(type, Class::getDeclaredMethods, Method::getName);
-				Field[] declaredFields = getSorted(type, Class::getDeclaredFields, Field::getName);
+				Method[] declaredMethods = type.getDeclaredMethods();
+				Field[] declaredFields = type.getDeclaredFields();
 				addProperties(declaredMethods, declaredFields);
 				type = type.getSuperclass();
 			}
-		}
-
-		private <S, E> E[] getSorted(S source, Function<S, E[]> elements, Function<E, String> name) {
-			E[] result = elements.apply(source);
-			Arrays.sort(result, Comparator.comparing(name));
-			return result;
 		}
 
 		protected void addProperties(Method[] declaredMethods, Field[] declaredFields) {

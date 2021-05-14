@@ -101,30 +101,12 @@ class EndpointIdTests {
 
 	@Test
 	void ofWhenMigratingLegacyNameRemovesDots(CapturedOutput output) {
-		EndpointId endpointId = migrateLegacyName("one.two.three");
-		assertThat(endpointId.toString()).isEqualTo("onetwothree");
-		assertThat(output).doesNotContain("contains invalid characters");
-	}
-
-	@Test
-	void ofWhenMigratingLegacyNameRemovesHyphens(CapturedOutput output) {
-		EndpointId endpointId = migrateLegacyName("one-two-three");
-		assertThat(endpointId.toString()).isEqualTo("onetwothree");
-		assertThat(output).doesNotContain("contains invalid characters");
-	}
-
-	@Test
-	void ofWhenMigratingLegacyNameRemovesMixOfDashAndDot(CapturedOutput output) {
-		EndpointId endpointId = migrateLegacyName("one.two-three");
-		assertThat(endpointId.toString()).isEqualTo("onetwothree");
-		assertThat(output).doesNotContain("contains invalid characters");
-	}
-
-	private EndpointId migrateLegacyName(String name) {
 		EndpointId.resetLoggedWarnings();
 		MockEnvironment environment = new MockEnvironment();
 		environment.setProperty("management.endpoints.migrate-legacy-ids", "true");
-		return EndpointId.of(environment, name);
+		EndpointId endpointId = EndpointId.of(environment, "foo.bar");
+		assertThat(endpointId.toString()).isEqualTo("foobar");
+		assertThat(output).doesNotContain("contains invalid characters");
 	}
 
 	@Test

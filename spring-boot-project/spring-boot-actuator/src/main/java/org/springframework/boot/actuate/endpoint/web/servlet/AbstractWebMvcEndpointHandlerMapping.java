@@ -367,7 +367,7 @@ public abstract class AbstractWebMvcEndpointHandlerMapping extends RequestMappin
 				return result;
 			}
 			WebEndpointResponse<?> response = (WebEndpointResponse<?>) result;
-			return ResponseEntity.status(response.getStatus()).body(response.getBody());
+			return new ResponseEntity<Object>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
 		}
 
 	}

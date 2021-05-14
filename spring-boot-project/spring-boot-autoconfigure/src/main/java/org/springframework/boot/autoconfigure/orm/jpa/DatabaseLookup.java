@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.springframework.boot.autoconfigure.orm.jpa;
 
-import java.sql.DatabaseMetaData;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
@@ -71,7 +70,7 @@ final class DatabaseLookup {
 			return Database.DEFAULT;
 		}
 		try {
-			String url = JdbcUtils.extractDatabaseMetaData(dataSource, DatabaseMetaData::getURL);
+			String url = JdbcUtils.extractDatabaseMetaData(dataSource, "getURL");
 			DatabaseDriver driver = DatabaseDriver.fromJdbcUrl(url);
 			Database database = LOOKUP.get(driver);
 			if (database != null) {

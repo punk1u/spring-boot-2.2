@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.boot.actuate.autoconfigure.web.jersey;
 
 import org.glassfish.jersey.server.ResourceConfig;

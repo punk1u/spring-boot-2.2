@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,6 @@
 package org.springframework.boot.web.embedded.jetty;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,8 +37,6 @@ import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
  */
 class JettyEmbeddedErrorHandler extends ErrorPageErrorHandler {
 
-	private static final Set<String> HANDLED_HTTP_METHODS = new HashSet<>(Arrays.asList("GET", "POST", "HEAD"));
-
 	@Override
 	public boolean errorPageForMethod(String method) {
 		return true;
@@ -50,9 +45,7 @@ class JettyEmbeddedErrorHandler extends ErrorPageErrorHandler {
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
-		if (!HANDLED_HTTP_METHODS.contains(baseRequest.getMethod())) {
-			baseRequest.setMethod("GET");
-		}
+		baseRequest.setMethod("GET");
 		super.doError(target, baseRequest, request, response);
 	}
 

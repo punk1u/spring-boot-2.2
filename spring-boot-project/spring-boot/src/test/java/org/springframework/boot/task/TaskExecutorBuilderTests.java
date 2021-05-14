@@ -61,8 +61,8 @@ class TaskExecutorBuilderTests {
 	}
 
 	@Test
-	void awaitTerminationPeriodShouldApplyWithMillisecondPrecision() {
-		Duration period = Duration.ofMillis(50);
+	void awaitTerminationPeriodShouldApply() {
+		Duration period = Duration.ofMinutes(1);
 		ThreadPoolTaskExecutor executor = this.builder.awaitTerminationPeriod(period).build();
 		assertThat(executor).hasFieldOrPropertyWithValue("awaitTerminationMillis", period.toMillis());
 	}

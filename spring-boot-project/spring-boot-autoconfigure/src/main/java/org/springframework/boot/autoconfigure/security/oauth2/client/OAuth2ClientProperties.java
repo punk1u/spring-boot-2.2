@@ -20,7 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
 
@@ -34,7 +35,7 @@ import org.springframework.util.StringUtils;
  * @since 2.0.0
  */
 @ConfigurationProperties(prefix = "spring.security.oauth2.client")
-public class OAuth2ClientProperties implements InitializingBean {
+public class OAuth2ClientProperties {
 
 	/**
 	 * OAuth provider details.
@@ -54,11 +55,7 @@ public class OAuth2ClientProperties implements InitializingBean {
 		return this.registration;
 	}
 
-	@Override
-	public void afterPropertiesSet() {
-		validate();
-	}
-
+	@PostConstruct
 	public void validate() {
 		this.getRegistration().values().forEach(this::validateRegistration);
 	}

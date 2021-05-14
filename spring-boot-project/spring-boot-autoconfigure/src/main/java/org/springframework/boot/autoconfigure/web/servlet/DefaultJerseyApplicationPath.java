@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.boot.autoconfigure.web.servlet;
 
 import javax.ws.rs.ApplicationPath;

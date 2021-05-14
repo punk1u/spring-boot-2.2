@@ -20,6 +20,7 @@
       <plugin>
         <groupId>${project.groupId}</groupId>
         <artifactId>${project.artifactId}</artifactId>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <id>repackage</id>

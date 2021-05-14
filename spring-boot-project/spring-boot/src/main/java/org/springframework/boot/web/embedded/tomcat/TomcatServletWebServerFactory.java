@@ -130,9 +130,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
 	private String protocol = DEFAULT_PROTOCOL;
 
-	private Set<String> tldSkipPatterns = new LinkedHashSet<>(TldPatterns.DEFAULT_SKIP);
-
-	private Set<String> tldScanPatterns = new LinkedHashSet<>(TldPatterns.DEFAULT_SCAN);
+	private Set<String> tldSkipPatterns = new LinkedHashSet<>(TldSkipPatterns.DEFAULT);
 
 	private Charset uriEncoding = DEFAULT_CHARSET;
 
@@ -222,7 +220,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 		catch (NoSuchMethodError ex) {
 			// Tomcat is < 8.5.39. Continue.
 		}
-		configureTldPatterns(context);
+		configureTldSkipPatterns(context);
 		WebappLoader loader = new WebappLoader();
 		loader.setLoaderClass(TomcatEmbeddedWebappClassLoader.class.getName());
 		loader.setDelegate(true);
@@ -256,10 +254,9 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 				(locale, charset) -> context.addLocaleEncodingMappingParameter(locale.toString(), charset.toString()));
 	}
 
-	private void configureTldPatterns(TomcatEmbeddedContext context) {
+	private void configureTldSkipPatterns(TomcatEmbeddedContext context) {
 		StandardJarScanFilter filter = new StandardJarScanFilter();
 		filter.setTldSkip(StringUtils.collectionToCommaDelimitedString(this.tldSkipPatterns));
-		filter.setTldScan(StringUtils.collectionToCommaDelimitedString(this.tldScanPatterns));
 		context.getJarScanner().setJarScanFilter(filter);
 	}
 

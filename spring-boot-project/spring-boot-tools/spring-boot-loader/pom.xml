@@ -19,7 +19,12 @@
 		<developerConnection>${git.developerConnection}</developerConnection>
 	</scm>
 	<dependencies>
-		<!-- Mmust never have compile/runtime time dependencies -->
+		<!-- Optional (must never have compile/runtime time dependencies) -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -83,9 +88,6 @@
 									<addTestClassPath>true</addTestClassPath>
 									<skipInvocation>${skipTests}</skipInvocation>
 									<streamLogs>true</streamLogs>
-									<properties>
-										<scan>false</scan>
-									</properties>
 								</configuration>
 							</execution>
 						</executions>

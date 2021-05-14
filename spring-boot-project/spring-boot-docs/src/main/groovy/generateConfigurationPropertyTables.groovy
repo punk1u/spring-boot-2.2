@@ -6,8 +6,12 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 def getConfigMetadataInputStreams() {
-	return getClass().getClassLoader().getResources("META-INF/spring-configuration-metadata.json")
-			.collect { new UrlResource(it).getInputStream() }
+	def mainMetadata = getClass().getClassLoader().getResources("META-INF/spring-configuration-metadata.json")
+	def additionalMetadata = getClass().getClassLoader().getResources("META-INF/additional-spring-configuration-metadata.json")
+	def streams = []
+	streams += mainMetadata.collect { new UrlResource(it).getInputStream() }
+	streams += additionalMetadata.collect { new UrlResource(it).getInputStream() }
+	return streams
 }
 
 def generateConfigMetadataDocumentation() {
@@ -33,7 +37,7 @@ def generateConfigMetadataDocumentation() {
 				.addSection("web")
 					.withKeyPrefixes("spring.hateoas",
 						"spring.http", "spring.servlet", "spring.jersey",
-						"spring.mvc", "spring.resources", "spring.session", "spring.webflux")
+						"spring.mvc", "spring.resources", "spring.webflux")
 				.addSection("json")
 					.withKeyPrefixes("spring.jackson", "spring.gson")
 				.addSection("rsocket")
@@ -42,12 +46,12 @@ def generateConfigMetadataDocumentation() {
 					.withKeyPrefixes("spring.freemarker", "spring.groovy", "spring.mustache", "spring.thymeleaf")
 				.addOverride("spring.groovy.template.configuration", "See GroovyMarkupConfigurer")
 				.addSection("security")
-					.withKeyPrefixes("spring.security")
+					.withKeyPrefixes("spring.security", "spring.ldap", "spring.session")
 				.addSection("data-migration")
 					.withKeyPrefixes("spring.flyway", "spring.liquibase")
 				.addSection("data")
-				.withKeyPrefixes("spring.couchbase", "spring.elasticsearch", "spring.h2",
-						"spring.influx", "spring.ldap", "spring.mongodb", "spring.redis",
+					.withKeyPrefixes("spring.couchbase", "spring.elasticsearch", "spring.h2",
+						"spring.influx", "spring.mongodb", "spring.redis",
 						"spring.dao", "spring.data", "spring.datasource", "spring.jooq",
 						"spring.jdbc", "spring.jpa")
 				.addOverride("spring.datasource.dbcp2", "Commons DBCP2 specific settings bound to an instance of DBCP2's BasicDataSource")

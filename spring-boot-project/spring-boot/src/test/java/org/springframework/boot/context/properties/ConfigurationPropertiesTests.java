@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@ package org.springframework.boot.context.properties;
 
 import java.beans.PropertyEditorSupport;
 import java.io.File;
-import java.text.ParseException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -60,6 +58,7 @@ import org.springframework.boot.testsupport.system.OutputCaptureExtension;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -74,7 +73,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ProtocolResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.format.Formatter;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.support.TestPropertySourceUtils;
@@ -170,14 +168,6 @@ class ConfigurationPropertiesTests {
 		removeSystemProperties();
 		assertThatExceptionOfType(ConfigurationPropertiesBindException.class)
 				.isThrownBy(() -> load(IgnoreUnknownFieldsFalseConfiguration.class, "name=foo", "bar=baz"))
-				.withCauseInstanceOf(BindException.class);
-	}
-
-	@Test
-	void givenIgnoreUnknownFieldsFalseAndIgnoreInvalidFieldsTrueWhenThereAreUnknownFieldsThenBindingShouldFail() {
-		removeSystemProperties();
-		assertThatExceptionOfType(ConfigurationPropertiesBindException.class).isThrownBy(
-				() -> load(IgnoreUnknownFieldsFalseIgnoreInvalidFieldsTrueConfiguration.class, "name=foo", "bar=baz"))
 				.withCauseInstanceOf(BindException.class);
 	}
 
@@ -612,7 +602,7 @@ class ConfigurationPropertiesTests {
 	}
 
 	@Test
-	void loadShouldUseConverterBean() {
+	void loadShouldUseConfigurationConverter() {
 		prepareConverterContext(ConverterConfiguration.class, PersonProperties.class);
 		Person person = this.context.getBean(PersonProperties.class).getPerson();
 		assertThat(person.firstName).isEqualTo("John");
@@ -628,16 +618,8 @@ class ConfigurationPropertiesTests {
 	}
 
 	@Test
-	void loadShouldUseGenericConverterBean() {
+	void loadShouldUseGenericConfigurationConverter() {
 		prepareConverterContext(GenericConverterConfiguration.class, PersonProperties.class);
-		Person person = this.context.getBean(PersonProperties.class).getPerson();
-		assertThat(person.firstName).isEqualTo("John");
-		assertThat(person.lastName).isEqualTo("Smith");
-	}
-
-	@Test
-	void loadShouldUseFormatterBean() {
-		prepareConverterContext(FormatterConfiguration.class, PersonProperties.class);
 		Person person = this.context.getBean(PersonProperties.class).getPerson();
 		assertThat(person.firstName).isEqualTo("John");
 		assertThat(person.lastName).isEqualTo("Smith");
@@ -778,6 +760,13 @@ class ConfigurationPropertiesTests {
 		ConstructorParameterProperties bean = this.context.getBean(ConstructorParameterProperties.class);
 		assertThat(bean.getFoo()).isEqualTo("baz");
 		assertThat(bean.getBar()).isEqualTo(5);
+	}
+
+	@Test // gh-17831
+	void loadWhenBindingConstructorParametersViaImportShouldThrowException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> load(ImportConstructorParameterPropertiesConfiguration.class))
+				.withMessageContaining("@EnableConfigurationProperties or @ConfigurationPropertiesScan must be used");
 	}
 
 	@Test
@@ -977,12 +966,6 @@ class ConfigurationPropertiesTests {
 	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties(IgnoreUnknownFieldsFalseProperties.class)
 	static class IgnoreUnknownFieldsFalseConfiguration {
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	@EnableConfigurationProperties(IgnoreUnknownFieldsFalseIgnoreInvalidFieldsTrueProperties.class)
-	static class IgnoreUnknownFieldsFalseIgnoreInvalidFieldsTrueConfiguration {
 
 	}
 
@@ -1250,17 +1233,6 @@ class ConfigurationPropertiesTests {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	static class FormatterConfiguration {
-
-		@Bean
-		@ConfigurationPropertiesBinding
-		Formatter<Person> personFormatter() {
-			return new PersonFormatter();
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
 	static class NonQualifiedGenericConverterConfiguration {
 
 		@Bean
@@ -1441,11 +1413,6 @@ class ConfigurationPropertiesTests {
 
 	@ConfigurationProperties(ignoreUnknownFields = false)
 	static class IgnoreUnknownFieldsFalseProperties extends BasicProperties {
-
-	}
-
-	@ConfigurationProperties(ignoreUnknownFields = false, ignoreInvalidFields = true)
-	static class IgnoreUnknownFieldsFalseIgnoreInvalidFieldsTrueProperties extends BasicProperties {
 
 	}
 
@@ -1958,6 +1925,13 @@ class ConfigurationPropertiesTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
+	@EnableConfigurationProperties
+	@Import(ConstructorParameterProperties.class)
+	static class ImportConstructorParameterPropertiesConfiguration {
+
+	}
+
 	@ConstructorBinding
 	@ConfigurationProperties(prefix = "test")
 	@Validated
@@ -2025,27 +1999,12 @@ class ConfigurationPropertiesTests {
 
 	}
 
-	static class PersonFormatter implements Formatter<Person> {
-
-		@Override
-		public String print(Person person, Locale locale) {
-			return person.getFirstName() + " " + person.getLastName();
-		}
-
-		@Override
-		public Person parse(String text, Locale locale) throws ParseException {
-			String[] content = text.split(" ");
-			return new Person(content[0], content[1]);
-		}
-
-	}
-
 	static class PersonPropertyEditor extends PropertyEditorSupport {
 
 		@Override
 		public void setAsText(String text) throws IllegalArgumentException {
-			String[] content = text.split(",");
-			setValue(new Person(content[1], content[0]));
+			String[] split = text.split(",");
+			setValue(new Person(split[1], split[0]));
 		}
 
 	}
@@ -2059,14 +2018,6 @@ class ConfigurationPropertiesTests {
 		Person(String firstName, String lastName) {
 			this.firstName = firstName;
 			this.lastName = lastName;
-		}
-
-		String getFirstName() {
-			return this.firstName;
-		}
-
-		String getLastName() {
-			return this.lastName;
 		}
 
 	}

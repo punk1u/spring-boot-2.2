@@ -19,6 +19,7 @@ package org.springframework.boot.autoconfigure.groovy.template;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.Servlet;
 
 import groovy.text.markup.MarkupTemplateEngine;
@@ -76,9 +77,9 @@ public class GroovyTemplateAutoConfiguration {
 		public GroovyMarkupConfiguration(ApplicationContext applicationContext, GroovyTemplateProperties properties) {
 			this.applicationContext = applicationContext;
 			this.properties = properties;
-			checkTemplateLocationExists();
 		}
 
+		@PostConstruct
 		public void checkTemplateLocationExists() {
 			if (this.properties.isCheckTemplateLocation() && !isUsingGroovyAllJar()) {
 				TemplateLocation location = new TemplateLocation(this.properties.getResourceLoaderPath());

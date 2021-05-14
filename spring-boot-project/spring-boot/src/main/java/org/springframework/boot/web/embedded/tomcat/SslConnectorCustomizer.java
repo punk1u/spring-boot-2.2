@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,12 +69,8 @@ class SslConnectorCustomizer implements TomcatConnectorCustomizer {
 		protocol.setSSLEnabled(true);
 		protocol.setSslProtocol(ssl.getProtocol());
 		configureSslClientAuth(protocol, ssl);
-		if (ssl.getKeyStorePassword() != null) {
-			protocol.setKeystorePass(ssl.getKeyStorePassword());
-		}
-		if (ssl.getKeyPassword() != null) {
-			protocol.setKeyPass(ssl.getKeyPassword());
-		}
+		protocol.setKeystorePass(ssl.getKeyStorePassword());
+		protocol.setKeyPass(ssl.getKeyPassword());
 		protocol.setKeyAlias(ssl.getKeyAlias());
 		String ciphers = StringUtils.arrayToCommaDelimitedString(ssl.getCiphers());
 		if (StringUtils.hasText(ciphers)) {
@@ -148,9 +144,7 @@ class SslConnectorCustomizer implements TomcatConnectorCustomizer {
 				throw new WebServerException("Could not load trust store: " + ex.getMessage(), ex);
 			}
 		}
-		if (ssl.getTrustStorePassword() != null) {
-			protocol.setTruststorePass(ssl.getTrustStorePassword());
-		}
+		protocol.setTruststorePass(ssl.getTrustStorePassword());
 		if (ssl.getTrustStoreType() != null) {
 			protocol.setTruststoreType(ssl.getTrustStoreType());
 		}

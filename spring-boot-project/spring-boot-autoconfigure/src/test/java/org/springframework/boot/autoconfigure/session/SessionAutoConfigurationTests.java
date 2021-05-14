@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	void contextFailsIfMultipleStoresAreAvailable() {
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasFailed();
-			assertThat(context).getFailure().hasRootCauseInstanceOf(NonUniqueSessionRepositoryException.class);
+			assertThat(context).getFailure().hasCauseInstanceOf(NonUniqueSessionRepositoryException.class);
 			assertThat(context).getFailure()
 					.hasMessageContaining("Multiple session repository candidates are available");
 		});
@@ -139,17 +139,6 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 					FilterRegistrationBean<?> registration = context.getBean(FilterRegistrationBean.class);
 					assertThat((EnumSet<DispatcherType>) ReflectionTestUtils.getField(registration, "dispatcherTypes"))
 							.containsOnly(DispatcherType.ERROR, DispatcherType.REQUEST);
-				});
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	void emptyFilterDispatcherTypesDoNotThrowException() {
-		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class)
-				.withPropertyValues("spring.session.servlet.filter-dispatcher-types=").run((context) -> {
-					FilterRegistrationBean<?> registration = context.getBean(FilterRegistrationBean.class);
-					Object dispatcherTypes = ReflectionTestUtils.getField(registration, "dispatcherTypes");
-					assertThat((EnumSet<DispatcherType>) dispatcherTypes).isEmpty();
 				});
 	}
 

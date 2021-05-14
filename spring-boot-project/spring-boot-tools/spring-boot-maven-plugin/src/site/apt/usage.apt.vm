@@ -38,6 +38,7 @@ Usage
     <plugin>
       <groupId>${project.groupId}</groupId>
       <artifactId>${project.artifactId}</artifactId>
+      <version>${project.version}</version>
       <executions>
         <execution>
           <goals>
@@ -79,6 +80,7 @@ Usage
     <plugin>
       <groupId>${project.groupId}</groupId>
       <artifactId>${project.artifactId}</artifactId>
+      <version>${project.version}</version>
       <configuration>
         <mainClass>${start-class}</mainClass>
         <layout>ZIP</layout>
@@ -154,6 +156,7 @@ mvn spring-boot:run
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-devtools</artifactId>
+    <version>${project.version}</version>
     <optional>true</optional>
   </dependency>
 </dependencies>
@@ -184,6 +187,7 @@ spring.devtools.remote.restart.enabled=false
     <plugin>
       <groupId>${project.groupId}</groupId>
       <artifactId>${project.artifactId}</artifactId>
+      <version>${project.version}</version>
       <configuration>
         <addResources>true</addResources>
       </configuration>
@@ -230,6 +234,7 @@ spring.devtools.remote.restart.enabled=false
     <plugin>
       <groupId>${project.groupId}</groupId>
       <artifactId>${project.artifactId}</artifactId>
+      <version>${project.version}</version>
       <executions>
         <execution>
           <id>pre-integration-test</id>
@@ -273,6 +278,7 @@ spring.devtools.remote.restart.enabled=false
     <plugin>
       <groupId>${project.groupId}</groupId>
       <artifactId>${project.artifactId}</artifactId>
+      <version>${project.version}</version>
       <executions>
         <execution>
           <id>pre-integration-test</id>

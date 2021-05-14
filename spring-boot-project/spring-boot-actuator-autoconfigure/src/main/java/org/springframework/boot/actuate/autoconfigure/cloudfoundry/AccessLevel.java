@@ -38,9 +38,6 @@ public enum AccessLevel {
 	 */
 	FULL;
 
-	/**
-	 * The request attribute used to store the {@link AccessLevel}.
-	 */
 	public static final String REQUEST_ATTRIBUTE = "cloudFoundryAccessLevel";
 
 	private final List<String> ids;

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.boot.autoconfigure.security.saml2;
 
 import java.util.Collections;

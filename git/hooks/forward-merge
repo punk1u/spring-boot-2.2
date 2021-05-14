@@ -62,17 +62,16 @@ def find_milestone(username, password, repository, title)
   milestones = JSON.parse(response.body)
   if title.end_with?(".x")
     prefix = title.delete_suffix('.x')
-    $log.debug "Finding nearest milestone from candidates starting with #{prefix}"
+    $log.debug "Finding latest milestone from candidates starting with #{prefix}"
     titles = milestones.map { |milestone| milestone['title'] }
     titles = titles.select{ |title| title.start_with?(prefix) unless title.end_with?('.x')}
-    titles = titles.sort_by { |v| Gem::Version.new(v) }
-    $log.debug "Considering candidates #{titles}"
+    titles.sort_by { |v| Gem::Version.new(v) }
     if(titles.empty?)
-      puts "Cannot find nearest milestone for prefix #{title}"
+      puts "Cannot find latest for milestone #{title}"
       exit 1
     end
-    title = titles.first
-    $log.debug "Found nearest milestone #{title}"
+    title = titles.last
+    $log.debug "Found latest milestone #{title}"
   end
   milestones.each do |milestone|
     $log.debug "Considering #{milestone['title']}"

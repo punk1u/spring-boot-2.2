@@ -16,8 +16,6 @@
 
 package org.springframework.boot.test.autoconfigure.jdbc;
 
-import java.util.Collections;
-
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -42,9 +40,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.MapPropertySource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.util.Assert;
@@ -172,10 +168,6 @@ public class TestDatabaseAutoConfiguration {
 
 		EmbeddedDataSourceFactory(Environment environment) {
 			this.environment = environment;
-			if (environment instanceof ConfigurableEnvironment) {
-				((ConfigurableEnvironment) environment).getPropertySources().addFirst(new MapPropertySource(
-						"testDatabase", Collections.singletonMap("spring.datasource.schema-username", "")));
-			}
 		}
 
 		EmbeddedDatabase getEmbeddedDatabase() {

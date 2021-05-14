@@ -10,7 +10,7 @@
 	<name>Spring Boot Build</name>
 	<description>Spring Boot Build</description>
 	<properties>
-		<revision>2.2.14.BUILD-SNAPSHOT</revision>
+		<revision>2.2.8.RELEASE</revision>
 		<main.basedir>${basedir}</main.basedir>
 		<disable.checks>true</disable.checks>
 	</properties>
@@ -25,7 +25,7 @@
 				</property>
 			</activation>
 			<properties>
-				<spring-javaformat.version>0.0.26</spring-javaformat.version>
+				<spring-javaformat.version>0.0.22</spring-javaformat.version>
 				<nohttp-checkstyle.version>0.0.4.RELEASE</nohttp-checkstyle.version>
 			</properties>
 			<build>
@@ -219,44 +219,167 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<!-- This plugin's configuration is used to store Eclipse m2e settings
+					 only. It has no influence on the Maven build itself. -->
 				<plugin>
-					<groupId>com.gradle</groupId>
-					<artifactId>gradle-enterprise-maven-extension</artifactId>
-					<version>1.8.1</version>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-checkstyle-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>check</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-dependency-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>copy</goal>
+											<goal>copy-dependencies</goal>
+											<goal>unpack</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-invoker-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>install</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-plugin-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>descriptor</goal>
+											<goal>helpmojo</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.basepom.maven</groupId>
+										<artifactId>duplicate-finder-maven-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>check</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>build-helper-maven-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>reserve-network-port</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>flatten-maven-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>flatten</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.jetbrains.kotlin</groupId>
+										<artifactId>kotlin-maven-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>compile</goal>
+											<goal>test-compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.jooq</groupId>
+										<artifactId>jooq-codegen-maven</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>generate</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.springframework.boot</groupId>
+										<artifactId>spring-boot-maven-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>build-info</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>com.gradle</groupId>
-				<artifactId>gradle-enterprise-maven-extension</artifactId>
-				<configuration>
-					<gradleEnterprise>
-						<plugins>
-							<plugin>
-								<artifactId>maven-checkstyle-plugin</artifactId>
-								<inputs>
-									<fileSets>
-										<fileSet>
-											<name>allowlist</name>
-											<paths>
-												<path>${main.basedir}/src/checkstyle</path>
-											</paths>
-											<normalization>RELATIVE_PATH</normalization>
-										</fileSet>
-									</fileSets>
-									<properties>
-										<property>
-											<name>propertyExpansion</name>
-											<value>ignoredValue</value>
-										</property>
-									</properties>
-								</inputs>
-							</plugin>
-						</plugins>
-					</gradleEnterprise>
-				</configuration>
-			</plugin>
-		</plugins>
 	</build>
 </project>

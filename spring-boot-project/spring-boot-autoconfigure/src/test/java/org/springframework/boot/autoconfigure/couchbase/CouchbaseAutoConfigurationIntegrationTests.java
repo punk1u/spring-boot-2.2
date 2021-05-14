@@ -17,16 +17,23 @@
 package org.springframework.boot.autoconfigure.couchbase;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseBucket;
+import com.couchbase.client.java.bucket.BucketType;
+import com.couchbase.client.java.cluster.BucketSettings;
 import com.couchbase.client.java.cluster.ClusterInfo;
+import com.couchbase.client.java.cluster.DefaultBucketSettings;
+import com.couchbase.client.java.cluster.UserRole;
+import com.couchbase.client.java.cluster.UserSettings;
 import com.couchbase.client.java.env.CouchbaseEnvironment;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.couchbase.BucketDefinition;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -48,14 +55,20 @@ import static org.mockito.Mockito.mock;
 @Testcontainers(disabledWithoutDocker = true)
 class CouchbaseAutoConfigurationIntegrationTests {
 
-	private static final String BUCKET_NAME = "cbbucket";
-
 	@Container
-	static final CouchbaseContainer couchbase = new CouchbaseContainer().withCredentials("spring", "password")
-			.withStartupAttempts(5).withStartupTimeout(Duration.ofMinutes(10))
-			.withBucket(new BucketDefinition(BUCKET_NAME).withPrimaryIndex(false));
+	static final CouchbaseContainer couchbase = new CouchbaseContainer().withClusterAdmin("spring", "password")
+			.withStartupAttempts(5).withStartupTimeout(Duration.ofMinutes(10));
 
 	private AnnotationConfigApplicationContext context;
+
+	@BeforeAll
+	static void createBucket() {
+		BucketSettings bucketSettings = DefaultBucketSettings.builder().enableFlush(true).name("default")
+				.password("password").quota(100).replicas(0).type(BucketType.COUCHBASE).build();
+		List<UserRole> userSettings = Collections.singletonList(new UserRole("admin"));
+		couchbase.createBucket(bucketSettings,
+				UserSettings.build().password(bucketSettings.password()).roles(userSettings), true);
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -64,7 +77,7 @@ class CouchbaseAutoConfigurationIntegrationTests {
 		TestPropertyValues.of("spring.couchbase.bootstrap-hosts=" + couchbase.getContainerIpAddress(),
 				"spring.couchbase.env.bootstrap.http-direct-port:" + couchbase.getMappedPort(8091),
 				"spring.couchbase.username:spring", "spring.couchbase.password:password",
-				"spring.couchbase.bucket.name:" + BUCKET_NAME).applyTo(this.context.getEnvironment());
+				"spring.couchbase.bucket.name:default").applyTo(this.context.getEnvironment());
 	}
 
 	@AfterEach

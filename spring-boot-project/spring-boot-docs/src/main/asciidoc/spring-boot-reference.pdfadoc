@@ -1,6 +1,6 @@
 [[spring-boot-reference-documentation]]
 = Spring Boot Reference Documentation
-include::authors.adoc[]
+Phillip Webb, Dave Syer, Josh Long, Stéphane Nicoll, Rob Winch, Andy Wilkinson, Marcel Overdijk, Christian Dupuis, Sébastien Deleuze, Michael Simons, Vedran Pavić, Jay Bryant, Madhura Bhave
 :docinfo: shared
 include::attributes.adoc[]
 

@@ -62,16 +62,6 @@ class TestTypeExcludeFilter extends TypeExcludeFilter {
 		return false;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return (obj != null) && (getClass() == obj.getClass());
-	}
-
-	@Override
-	public int hashCode() {
-		return getClass().hashCode();
-	}
-
 	private boolean isTestConfiguration(MetadataReader metadataReader) {
 		return (metadataReader.getAnnotationMetadata().isAnnotated(TestComponent.class.getName()));
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
@@ -94,7 +93,9 @@ public class SpringBootMockServletContext extends MockServletContext {
 			try {
 				if (this.emptyRootFolder == null) {
 					synchronized (this) {
-						File tempFolder = Files.createTempDirectory("spr-servlet").toFile();
+						File tempFolder = File.createTempFile("spr", "servlet");
+						tempFolder.delete();
+						tempFolder.mkdirs();
 						tempFolder.deleteOnExit();
 						this.emptyRootFolder = tempFolder;
 					}
