@@ -149,6 +149,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		 */
 		configurations = filter(configurations, autoConfigurationMetadata);
 
+		/**
+		 * 触发自动配置导入监听事件
+		 */
 		fireAutoConfigurationImportEvents(configurations, exclusions);
 		return new AutoConfigurationEntry(configurations, exclusions);
 	}

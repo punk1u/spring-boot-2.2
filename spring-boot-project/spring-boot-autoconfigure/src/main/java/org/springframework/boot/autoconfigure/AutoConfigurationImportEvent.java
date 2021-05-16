@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 导入自动配置类时触发的事件。
  * Event fired when auto-configuration classes are imported.
  *
  * @author Phillip Webb
@@ -40,6 +41,7 @@ public class AutoConfigurationImportEvent extends EventObject {
 	}
 
 	/**
+	 * 返回要导入的自动配置候选配置。
 	 * Return the auto-configuration candidate configurations that are going to be
 	 * imported.
 	 * @return the auto-configuration candidates
@@ -49,6 +51,7 @@ public class AutoConfigurationImportEvent extends EventObject {
 	}
 
 	/**
+	 * 返回已应用的排除项。
 	 * Return the exclusions that were applied.
 	 * @return the exclusions applied
 	 */

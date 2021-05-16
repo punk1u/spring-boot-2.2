@@ -24,9 +24,20 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 
 /**
+ * 可以注册到{@code spring.factories}以接收导入的自动配置的详细信息的侦听器。
  * Listener that can be registered with {@code spring.factories} to receive details of
  * imported auto-configurations.
  * <p>
+ *
+ * {@link AutoConfigurationImportListener}可以实现以下任何{@link org.springframework.beans.factory.Aware}接口，
+ * 它们各自的方法将在{@link #onAutoConfigurationImportEvent（AutoConfigurationImportEvent）}之前被调用：
+ * <ul>
+ * <li>{@link EnvironmentAware}</li>
+ * <li>{@link BeanFactoryAware}</li>
+ * <li>{@link BeanClassLoaderAware}</li>
+ * <li>{@link ResourceLoaderAware}</li>
+ * </ul>
+ *
  * An {@link AutoConfigurationImportListener} may implement any of the following
  * {@link org.springframework.beans.factory.Aware Aware} interfaces, and their respective
  * methods will be called prior to
@@ -45,6 +56,7 @@ import org.springframework.context.ResourceLoaderAware;
 public interface AutoConfigurationImportListener extends EventListener {
 
 	/**
+	 * 处理自动配置导入事件。
 	 * Handle an auto-configuration import event.
 	 * @param event the event to respond to
 	 */
