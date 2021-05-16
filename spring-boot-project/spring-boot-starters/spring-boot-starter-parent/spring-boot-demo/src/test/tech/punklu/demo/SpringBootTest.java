@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 import tech.punklu.demo.properties.Student;
+import tech.punklu.demo.properties.TestYmlProperties;
 import tech.punklu.demo.properties.ValueProperties;
 
 @RunWith(SpringRunner.class)
@@ -21,5 +22,14 @@ public class SpringBootTest {
 	public void test(){
 		System.out.println(student.toString());
 		System.out.println(valueProperties.getFunctionFlag());
+	}
+
+
+	@Autowired
+	private TestYmlProperties testYmlProperties;
+
+	@Test
+	public void testReadCustomYml(){
+		System.out.println(testYmlProperties.getName());
 	}
 }
