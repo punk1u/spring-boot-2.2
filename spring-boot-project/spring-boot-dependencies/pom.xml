@@ -9,6 +9,8 @@
 		<version>${revision}</version>
 		<relativePath>../..</relativePath>
 	</parent>
+	<!--spring-boot-dependencies中在<dependencyManagement>中定义了此版本的spring-boot项目需要用到的各种组件的版本号,
+	所以在子项目中只需要声明<dependency>的<groupId>和<artifactId>即可，不需要声明版本号，会自动使用这个文件中定义的版本号-->
 	<artifactId>spring-boot-dependencies</artifactId>
 	<packaging>pom</packaging>
 	<name>Spring Boot Dependencies</name>
