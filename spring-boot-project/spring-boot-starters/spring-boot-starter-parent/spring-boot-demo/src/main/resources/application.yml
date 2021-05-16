@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+student:
+  name: xxx
+  age: 12
+  sex: 男
+
+functionFlag: true
+
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
