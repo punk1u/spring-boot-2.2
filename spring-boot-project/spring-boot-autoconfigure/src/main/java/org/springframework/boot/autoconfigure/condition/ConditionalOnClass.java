@@ -25,9 +25,8 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Conditional;
 
 /**
- * {@link Conditional @Conditional} that only matches when the specified classes are on
- * the classpath.
- * <p>
+ * 此注解表示只有当此注解中声明的bean存在时，才会构建被这个注解标注的类（bean）
+ *
  * A {@link #value()} can be safely specified on {@code @Configuration} classes as the
  * annotation metadata is parsed by using ASM before the class is loaded. Extra care is
  * required when placed on {@code @Bean} methods, consider isolating the condition in a

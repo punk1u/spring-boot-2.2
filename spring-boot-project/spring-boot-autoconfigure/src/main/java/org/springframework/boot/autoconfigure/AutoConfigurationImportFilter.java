@@ -22,10 +22,23 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 
 /**
+ * 可以在{@code spring.factories}中注册以限制所考虑的自动配置类的筛选器。
+ * 此接口设计为允许在读取自动配置类的字节码之前快速删除它们。
+ *
  * Filter that can be registered in {@code spring.factories} to limit the
  * auto-configuration classes considered. This interface is designed to allow fast removal
  * of auto-configuration classes before their bytecode is even read.
  * <p>
+ *
+ * {@link AutoConfigurationImportFilter}可以实现以下任何{@link org.springframework.beans.factory.Aware}接口，
+ * 它们各自的方法将在{@link #match}之前被调用：
+ * <ul>
+ * 		<li>{@link EnvironmentAware}</li>
+ * 		<li>{@link BeanFactoryAware}</li>
+ * 		<li>{@link BeanClassLoaderAware}</li>
+ * 		<li>{@link ResourceLoaderAware}</li>
+ * </ul>
+ *
  * An {@link AutoConfigurationImportFilter} may implement any of the following
  * {@link org.springframework.beans.factory.Aware Aware} interfaces, and their respective
  * methods will be called prior to {@link #match}:
@@ -43,6 +56,8 @@ import org.springframework.context.ResourceLoaderAware;
 public interface AutoConfigurationImportFilter {
 
 	/**
+	 * 将筛选器应用于给定的自动配置候选类
+	 * @param autoConfigurationClasses
 	 * Apply the filter to the given auto-configuration class candidates.
 	 * @param autoConfigurationClasses the auto-configuration classes being considered.
 	 * This array may contain {@code null} elements. Implementations should not change the
