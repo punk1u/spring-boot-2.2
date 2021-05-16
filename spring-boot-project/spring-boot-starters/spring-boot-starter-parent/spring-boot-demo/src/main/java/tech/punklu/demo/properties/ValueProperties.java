@@ -8,4 +8,12 @@ public class ValueProperties {
 
 	@Value("${functionFlag}")
 	private String functionFlag;
+
+	public String getFunctionFlag() {
+		return functionFlag;
+	}
+
+	public void setFunctionFlag(String functionFlag) {
+		this.functionFlag = functionFlag;
+	}
 }
