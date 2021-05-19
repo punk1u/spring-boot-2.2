@@ -46,6 +46,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 /**
+ * 用于配置servlet web容器的自动配置类
  * {@link EnableAutoConfiguration Auto-configuration} for servlet web servers.
  *
  * @author Phillip Webb
