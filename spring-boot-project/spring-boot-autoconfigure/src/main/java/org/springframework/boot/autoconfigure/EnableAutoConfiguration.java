@@ -81,7 +81,9 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 @Inherited
 @AutoConfigurationPackage
 /**
- * 引入AutoConfigurationImportSelector
+ * 引入AutoConfigurationImportSelector,其中会加载spring.factories文件，
+ * 加载Spring Boot内置的各种自动配置类以及开发人员添加的各种组件和Spring Boot整合时需要用到的
+ * 各种自动配置类
  */
 @Import(AutoConfigurationImportSelector.class)
 public @interface EnableAutoConfiguration {

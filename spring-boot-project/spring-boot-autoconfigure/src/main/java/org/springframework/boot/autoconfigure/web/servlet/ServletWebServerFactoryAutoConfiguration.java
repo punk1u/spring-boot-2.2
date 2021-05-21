@@ -49,6 +49,10 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
  * 用于配置servlet web容器的自动配置类
  * {@link EnableAutoConfiguration Auto-configuration} for servlet web servers.
  *
+ * 这个用于配置servlet web容器的自动配置类被添加到了spring.factories文件的key为
+ * org.springframework.boot.autoconfigure.EnableAutoConfiguration的配置项中，所以在Spring Boot启动的时候
+ * 会自动被SpringBootApplication注解中的@EnableAutoConfiguration注解里引入的AutoConfigurationImportSelector类自动加载
+ *
  * @author Phillip Webb
  * @author Dave Syer
  * @author Ivan Sopov
@@ -58,9 +62,25 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
  */
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+/**
+ * 设置只有在系统中存在ServletRequest的servlet环境时才启用这个自动配置类
+ */
 @ConditionalOnClass(ServletRequest.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)
+/**
+ * 加载存储项目基本配置信息的类（项目端口等）
+ */
 @EnableConfigurationProperties(ServerProperties.class)
+/**
+ * 注入相关对象：
+ * 1、BeanPostProcessorsRegistrar 后置处理器
+ * 2、整合Spring Boot支持的三种容器的配置类：
+ * 	 ServletWebServerFactoryConfiguration.EmbeddedTomcat
+ * 	 ServletWebServerFactoryConfiguration.EmbeddedJetty
+ * 	 ServletWebServerFactoryConfiguration.EmbeddedUndertow
+ *
+ * 	 Tomcat排在最前面，所以优先使用Tomcat
+ */
 @Import({ ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar.class,
 		ServletWebServerFactoryConfiguration.EmbeddedTomcat.class,
 		ServletWebServerFactoryConfiguration.EmbeddedJetty.class,

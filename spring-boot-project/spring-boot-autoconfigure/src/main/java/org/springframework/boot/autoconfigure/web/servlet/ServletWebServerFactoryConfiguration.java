@@ -46,8 +46,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * servlet web服务器的配置类
  * Configuration classes for servlet web servers
  * <p>
+ * 它们应该是常规自动配置类中使用{@code @Import}注解被引入，以保证它们的执行顺序。
  * Those should be {@code @Import} in a regular auto-configuration class to guarantee
  * their order of execution.
  *
@@ -62,8 +64,17 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 class ServletWebServerFactoryConfiguration {
 
+	/**
+	 * 整合Tomcat的类
+	 * 内部方法返回配置好的TomcatServlet web容器工厂对象 bean
+	 */
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass({ Servlet.class, Tomcat.class, UpgradeProtocol.class })
+	/**
+	 * TomcatServletWebServerFactory、JettyServletWebServerFactory、UndertowServletWebServerFactory都是
+	 * ServletWebServerFactory接口的实现类，只有当Spring容器中不存在ServletWebServerFactory类型的容器时才进行这几类容器
+	 * 的加载
+	 */
 	@ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
 	static class EmbeddedTomcat {
 
