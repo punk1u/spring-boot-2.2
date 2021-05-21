@@ -43,6 +43,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.unit.DataSize;
 
 /**
+ * 定制特定于Tomcat的特性，这些特性对于Servlet和反应式服务器都是通用的。
  * Customization for Tomcat-specific features common for both Servlet and Reactive
  * servers.
  *

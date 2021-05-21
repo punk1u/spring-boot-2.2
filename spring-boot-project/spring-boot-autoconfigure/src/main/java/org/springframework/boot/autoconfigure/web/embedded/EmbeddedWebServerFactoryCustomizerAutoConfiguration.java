@@ -35,6 +35,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 /**
+ * {@link EnableAutoConfiguration Auto configuration}用于自定义嵌入式servlet和响应式web服务器。
+ *
+ * 这个配置类在spring.factories的org.springframework.boot.autoconfigure.EnableAutoConfiguration中存在，
+ * 所以在spring boot启动时会被默认加载
  * {@link EnableAutoConfiguration Auto-configuration} for embedded servlet and reactive
  * web servers customizations.
  *
@@ -46,6 +50,10 @@ import org.springframework.core.env.Environment;
 @EnableConfigurationProperties(ServerProperties.class)
 public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
 
+	/**
+	 * 使用Tomcat时的嵌套配置
+	 * 只有当Tomcat的相关类对象存在时，才会加载
+	 */
 	/**
 	 * Nested configuration if Tomcat is being used.
 	 */
@@ -61,6 +69,11 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
 
 	}
 
+	/**
+	 * 使用Jetty的相关嵌套配置
+	 * Server.class, Loader.class, WebAppContext.class 都是Jetty相关依赖包中的类对象，
+	 * 只有在项目引入了Jetty相关依赖后才存在于应用中
+	 */
 	/**
 	 * Nested configuration if Jetty is being used.
 	 */

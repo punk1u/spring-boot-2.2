@@ -93,6 +93,11 @@ public class ServletWebServerFactoryAutoConfiguration {
 	}
 
 	@Bean
+	/**
+	 * 只有当org.apache.catalina.startup.Tomcat这个类存在时，才会执行此方法，加载Tomcat整合Spring Boot的配置类
+	 * 因为org.apache.catalina.startup.Tomcat这个类存在于spring-boot-starter-web中，所以当使用了默认配置时，
+	 * 会自动使用Tomcat作为Spring Boot的servlet容器。如果需要指定其他容器，也需要先把spring-boot-starter-web中的Tomcat依赖排除掉
+	 */
 	@ConditionalOnClass(name = "org.apache.catalina.startup.Tomcat")
 	public TomcatServletWebServerFactoryCustomizer tomcatServletWebServerFactoryCustomizer(
 			ServerProperties serverProperties) {
