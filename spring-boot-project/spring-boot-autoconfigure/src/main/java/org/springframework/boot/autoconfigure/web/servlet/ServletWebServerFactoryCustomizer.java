@@ -23,6 +23,8 @@ import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerF
 import org.springframework.core.Ordered;
 
 /**
+ * {@link WebServerFactoryCustomizer}的基于Servlet的实现类，
+ * 将{@link ServerProperties}应用于servlet web服务器。
  * {@link WebServerFactoryCustomizer} to apply {@link ServerProperties} to servlet web
  * servers.
  *
@@ -49,16 +51,46 @@ public class ServletWebServerFactoryCustomizer
 	@Override
 	public void customize(ConfigurableServletWebServerFactory factory) {
 		PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+		/**
+		 * 容器端口
+ 		 */
 		map.from(this.serverProperties::getPort).to(factory::setPort);
+		/**
+		 * 地址
+		 */
 		map.from(this.serverProperties::getAddress).to(factory::setAddress);
+		/**
+		 * 应用程序上下文路径
+		 */
 		map.from(this.serverProperties.getServlet()::getContextPath).to(factory::setContextPath);
 		map.from(this.serverProperties.getServlet()::getApplicationDisplayName).to(factory::setDisplayName);
+		/**
+		 * session配置
+		 */
 		map.from(this.serverProperties.getServlet()::getSession).to(factory::setSession);
+		/**
+		 * HTTPS 加密配置
+		 */
 		map.from(this.serverProperties::getSsl).to(factory::setSsl);
+		/**
+		 * jsp
+		 */
 		map.from(this.serverProperties.getServlet()::getJsp).to(factory::setJsp);
+		/**
+		 * 压缩配置策略实现
+		 */
 		map.from(this.serverProperties::getCompression).to(factory::setCompression);
+		/**
+		 * http2相关设置
+		 */
 		map.from(this.serverProperties::getHttp2).to(factory::setHttp2);
+		/**
+		 * web应用的Header设置
+		 */
 		map.from(this.serverProperties::getServerHeader).to(factory::setServerHeader);
+		/**
+		 * 应用上下文的参数设置
+		 */
 		map.from(this.serverProperties.getServlet()::getContextParameters).to(factory::setInitParameters);
 	}
 

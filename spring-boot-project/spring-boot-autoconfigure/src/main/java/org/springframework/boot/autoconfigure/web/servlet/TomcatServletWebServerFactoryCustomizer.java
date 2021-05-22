@@ -24,6 +24,7 @@ import org.springframework.core.Ordered;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * {@link WebServerFactoryCustomizer}接口的实现类，用于将{@link ServerProperties}的值设置给Tomcat服务器
  * {@link WebServerFactoryCustomizer} to apply {@link ServerProperties} to Tomcat web
  * servers.
  *
@@ -47,6 +48,9 @@ public class TomcatServletWebServerFactoryCustomizer
 
 	@Override
 	public void customize(TomcatServletWebServerFactory factory) {
+		/**
+		 * 拿到 tomcat 相关的配置
+		 */
 		ServerProperties.Tomcat tomcatProperties = this.serverProperties.getTomcat();
 		if (!ObjectUtils.isEmpty(tomcatProperties.getAdditionalTldSkipPatterns())) {
 			factory.getTldSkipPatterns().addAll(tomcatProperties.getAdditionalTldSkipPatterns());

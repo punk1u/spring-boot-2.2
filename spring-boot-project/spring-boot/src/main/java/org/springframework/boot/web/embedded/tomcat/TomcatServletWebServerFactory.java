@@ -78,10 +78,14 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * {@link AbstractServletWebServerFactory}的实现类，可用于创建{@link TomcatWebServer}。
+ * 可以使用Spring的{@link ServletContextInitializer}或Tomcat的{@link LifecycleListener}初始化。
+ *
  * {@link AbstractServletWebServerFactory} that can be used to create
  * {@link TomcatWebServer}s. Can be initialized using Spring's
  * {@link ServletContextInitializer}s or Tomcat {@link LifecycleListener}s.
  * <p>
+ * 除非另有明确配置，否则此工厂将创建侦听端口8080上HTTP请求的容器。
  * Unless explicitly configured otherwise this factory will create containers that listen
  * for HTTP requests on port 8080.
  *
@@ -106,6 +110,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 	private static final Set<Class<?>> NO_CLASSES = Collections.emptySet();
 
 	/**
+	 * 使用的默认协议的类名
 	 * The class name of default protocol used.
 	 */
 	public static final String DEFAULT_PROTOCOL = "org.apache.coyote.http11.Http11NioProtocol";
@@ -174,19 +179,38 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 		if (this.disableMBeanRegistry) {
 			Registry.disableRegistry();
 		}
+		/**
+		 * 创建Tomcat实例
+		 */
 		Tomcat tomcat = new Tomcat();
+		/**
+		 * 创建一个Tomcat实例工作空间目录
+		 */
 		File baseDir = (this.baseDirectory != null) ? this.baseDirectory : createTempDir("tomcat");
 		tomcat.setBaseDir(baseDir.getAbsolutePath());
+		/**
+		 * 创建连接对象
+		 */
 		Connector connector = new Connector(this.protocol);
 		connector.setThrowOnFailure(true);
 		tomcat.getService().addConnector(connector);
+		/**
+		 * 给 Connector 设置 port、protocolHandler、uriEncoding 等。
+		 * Connector 构造的逻辑主要是在NIO和APR选择中选择一个协议，然后反射创建实例并强转为 ProtocolHandler
+		 */
 		customizeConnector(connector);
 		tomcat.setConnector(connector);
 		tomcat.getHost().setAutoDeploy(false);
+		/**
+		 * 配置Engine，没有什么实质性的操作
+		 */
 		configureEngine(tomcat.getEngine());
 		for (Connector additionalConnector : this.additionalTomcatConnectors) {
 			tomcat.getService().addConnector(additionalConnector);
 		}
+		/**
+		 * 将Web应用映射到一个TomcatEmbeddedContext，然后加入到Host中
+		 */
 		prepareContext(tomcat.getHost(), initializers);
 		return getTomcatWebServer(tomcat);
 	}
@@ -198,21 +222,51 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 		}
 	}
 
+	/**
+	 * 对于 Tomcat 来说，每个 context 就是映射到一个 web app的，
+	 * 所以prepareContext做的事情就是将web应用映射到一个TomcatEmbeddedContext ，然后加入到 Host 中
+	 * @param host
+	 * @param initializers
+	 */
 	protected void prepareContext(Host host, ServletContextInitializer[] initializers) {
 		File documentRoot = getValidDocumentRoot();
+		/**
+		 * 创建一个 TomcatEmbeddedContext 对象
+		 */
 		TomcatEmbeddedContext context = new TomcatEmbeddedContext();
 		if (documentRoot != null) {
 			context.setResources(new LoaderHidingResourceRoot(context));
 		}
+		/**
+		 * 设置描述此容器的名称字符串。在属于特定父项的子容器集内，容器名称必须唯一。
+		 */
 		context.setName(getContextPath());
+		/**
+		 * 设置此Web应用程序的显示名称。
+		 */
 		context.setDisplayName(getDisplayName());
+		/**
+		 * 设置 webContextPath  默认是 /
+		 */
 		context.setPath(getContextPath());
 		File docBase = (documentRoot != null) ? documentRoot : createTempDir("tomcat-docbase");
 		context.setDocBase(docBase.getAbsolutePath());
+		/**
+		 * 注册一个FixContextListener监听，这个监听用于设置context的配置状态以及是否加入登录验证的逻辑
+		 */
 		context.addLifecycleListener(new FixContextListener());
+		/**
+		 *  设置 父 ClassLoader
+		 */
 		context.setParentClassLoader((this.resourceLoader != null) ? this.resourceLoader.getClassLoader()
 				: ClassUtils.getDefaultClassLoader());
+		/**
+		 * 覆盖Tomcat的默认语言环境映射以与其他服务器对齐。
+		 */
 		resetDefaultLocaleMapping(context);
+		/**
+		 * 添加区域设置编码映射（请参阅Servlet规范2.4的5.4节）
+		 */
 		addLocaleMappings(context);
 		try {
 			context.setCreateUploadTargets(true);
@@ -221,19 +275,35 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 			// Tomcat is < 8.5.39. Continue.
 		}
 		configureTldSkipPatterns(context);
+		/**
+		 * 设置 WebappLoader ，并且将 父 classLoader 作为构建参数
+		 */
 		WebappLoader loader = new WebappLoader();
+		/**
+		 * 设置 WebappLoader 的 loaderClass 值
+		 */
 		loader.setLoaderClass(TomcatEmbeddedWebappClassLoader.class.getName());
+		/**
+		 * 会将加载类向上委托
+		 */
 		loader.setDelegate(true);
 		context.setLoader(loader);
 		if (isRegisterDefaultServlet()) {
 			addDefaultServlet(context);
 		}
+		/**
+		 * 是否注册 jspServlet
+		 */
 		if (shouldRegisterJspServlet()) {
 			addJspServlet(context);
 			addJasperInitializer(context);
 		}
 		context.addLifecycleListener(new StaticResourceConfigurer(context));
 		ServletContextInitializer[] initializersToUse = mergeInitializers(initializers);
+		/**
+		 * 在 host中加入一个context容器,add时给context注册了个内存泄漏跟踪的监听MemoryLeakTrackingListener,
+		 * 详见 addChild 方法
+		 */
 		host.addChild(context);
 		configureContext(context, initializersToUse);
 		postProcessContext(context);
@@ -427,6 +497,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 	}
 
 	/**
+	 * 调用工厂方法来创建{@link TomcatWebServer}。
+	 * 子类可以重写此方法以返回不同的{@link TomcatWebServer}或对Tomcat服务器应用附加处理。
 	 * Factory method called to create the {@link TomcatWebServer}. Subclasses can
 	 * override this method to return a different {@link TomcatWebServer} or apply
 	 * additional processing to the Tomcat server.

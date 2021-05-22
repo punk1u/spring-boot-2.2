@@ -76,6 +76,7 @@ public class TomcatWebServer implements WebServer {
 	}
 
 	/**
+	 * 创建一个新的{@link TomcatWebServer}实例
 	 * Create a new {@link TomcatWebServer} instance.
 	 * @param tomcat the underlying Tomcat server
 	 * @param autoStart if the server should be started
@@ -84,6 +85,9 @@ public class TomcatWebServer implements WebServer {
 		Assert.notNull(tomcat, "Tomcat Server must not be null");
 		this.tomcat = tomcat;
 		this.autoStart = autoStart;
+		/**
+		 * 初始化
+		 */
 		initialize();
 	}
 
@@ -102,19 +106,33 @@ public class TomcatWebServer implements WebServer {
 					}
 				});
 
+				/**
+				 * 启动服务器以触发初始化监听器
+				 */
 				// Start the server to trigger initialization listeners
 				this.tomcat.start();
 
+				/**
+				 * 这个方法检查初始化过程中的异常，如果有直接在主线程抛出，
+				 * 检查方法是TomcatStarter中的 startUpException，这个值是在 Context 启动过程中记录的
+				 */
 				// We can re-throw failure exception directly in the main thread
 				rethrowDeferredStartupExceptions();
 
 				try {
+					/**
+					 * 绑定命名的上下文和classloader，
+					 */
 					ContextBindings.bindClassLoader(context, context.getNamingToken(), getClass().getClassLoader());
 				}
 				catch (NamingException ex) {
 					// Naming is not enabled. Continue
 				}
 
+				/**
+				 * 与Jetty不同，Tomcat所有的线程都是守护线程，所以创建一个
+				 * 非守护线程（例：Thread[container-0,5,main]）来避免服务到这就shutdown了
+				 */
 				// Unlike Jetty, all Tomcat threads are daemon threads. We create a
 				// blocking non-daemon to stop immediate shutdown
 				startDaemonAwaitThread();

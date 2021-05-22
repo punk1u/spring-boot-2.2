@@ -31,6 +31,9 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.util.Assert;
 
 /**
+ * 在 WebServerFactory 初始化时调用 WebServerFactoryCustomizer 中的 customize 方法来 处理 WebServerFactory。
+ * 设置Web服务器的相应属性
+ *
  * {@link BeanPostProcessor} that applies all {@link WebServerFactoryCustomizer} beans
  * from the bean factory to {@link WebServerFactory} beans.
  *
@@ -65,6 +68,11 @@ public class WebServerFactoryCustomizerBeanPostProcessor implements BeanPostProc
 		return bean;
 	}
 
+	/**
+	 * 拿到所有的 WebServerFactoryCustomizer类 ，然后遍历调用这些 Customizers 的 customize 方法，
+	 * 实现对相关web容器的配置
+	 * @param webServerFactory
+	 */
 	@SuppressWarnings("unchecked")
 	private void postProcessBeforeInitialization(WebServerFactory webServerFactory) {
 		LambdaSafe.callbacks(WebServerFactoryCustomizer.class, getCustomizers(), webServerFactory)
@@ -82,6 +90,10 @@ public class WebServerFactoryCustomizerBeanPostProcessor implements BeanPostProc
 		return this.customizers;
 	}
 
+	/**
+	 * 获取到bean工厂中所有的WebServerFactoryCustomizer类型的用于配置web容器的配置类
+	 * @return
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Collection<WebServerFactoryCustomizer<?>> getWebServerFactoryCustomizerBeans() {
 		return (Collection) this.beanFactory.getBeansOfType(WebServerFactoryCustomizer.class, false, false).values();

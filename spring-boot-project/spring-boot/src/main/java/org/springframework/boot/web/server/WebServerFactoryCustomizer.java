@@ -19,10 +19,16 @@ package org.springframework.boot.web.server;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 /**
+ * 用于自定义{@link WebServerFactory web server factories}的策略接口。
+ * 任何这种类型的bean在服务器启动之前都会得到服务器工厂的回调，因此您可以设置端口、地址、错误页等。
+ *
  * Strategy interface for customizing {@link WebServerFactory web server factories}. Any
  * beans of this type will get a callback with the server factory before the server itself
  * is started, so you can set the port, address, error pages etc.
  * <p>
+ *
+ * 注意：对这个接口的调用通常是从{@link WebServerFactoryCustomizerBeanPostProcessor}发出的，
+ *
  * Beware: calls to this interface are usually made from a
  * {@link WebServerFactoryCustomizerBeanPostProcessor} which is a
  * {@link BeanPostProcessor} (so called very early in the ApplicationContext lifecycle).

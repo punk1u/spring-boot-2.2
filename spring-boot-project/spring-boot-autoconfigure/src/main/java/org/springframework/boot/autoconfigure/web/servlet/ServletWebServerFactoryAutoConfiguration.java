@@ -66,6 +66,9 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
  * 设置只有在系统中存在ServletRequest的servlet环境时才启用这个自动配置类
  */
 @ConditionalOnClass(ServletRequest.class)
+/**
+ * 仅基于servlet的Web应用程序，才启用这个配置类
+ */
 @ConditionalOnWebApplication(type = Type.SERVLET)
 /**
  * 加载存储项目基本配置信息的类（项目端口等）
@@ -116,6 +119,8 @@ public class ServletWebServerFactoryAutoConfiguration {
 	}
 
 	/**
+	 * 注册{@link WebServerFactoryCustomizerBeanPostProcessor}。
+	 * 通过{@link ImportBeanDefinitionRegistrar}注册，以便提前注册。
 	 * Registers a {@link WebServerFactoryCustomizerBeanPostProcessor}. Registered via
 	 * {@link ImportBeanDefinitionRegistrar} for early registration.
 	 */
@@ -136,8 +141,15 @@ public class ServletWebServerFactoryAutoConfiguration {
 			if (this.beanFactory == null) {
 				return;
 			}
+			/**
+			 * 向Spring容器中注册 WebServerFactoryCustomizerBeanPostProcessor，这个类是BeanPostProcessor，
+			 * 用于设置web容器的相关配置
+			 */
 			registerSyntheticBeanIfMissing(registry, "webServerFactoryCustomizerBeanPostProcessor",
 					WebServerFactoryCustomizerBeanPostProcessor.class);
+			/**
+			 * 注册 errorPageRegistrarBeanPostProcessor
+			 */
 			registerSyntheticBeanIfMissing(registry, "errorPageRegistrarBeanPostProcessor",
 					ErrorPageRegistrarBeanPostProcessor.class);
 		}
