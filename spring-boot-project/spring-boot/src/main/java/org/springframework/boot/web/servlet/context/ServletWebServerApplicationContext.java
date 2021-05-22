@@ -58,9 +58,15 @@ import org.springframework.web.context.support.ServletContextScope;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
+ * 一个{@link WebApplicationContext}，可用于从包含的{@link ServletWebServerFactory}bean引导自身。
  * A {@link WebApplicationContext} that can be used to bootstrap itself from a contained
  * {@link ServletWebServerFactory} bean.
  * <p>
+ *
+ *
+ * 此上下文将通过在{@link ApplicationContext}本身中搜索单个{@link ServletWebServerFactory}bean来创建、初始化和运行{@link WebServer}。
+ * {@link ServletWebServerFactory}可以自由使用标准的Spring概念（例如依赖注入、生命周期回调和属性占位符变量）。
+ *
  * This context will create, initialize and run an {@link WebServer} by searching for a
  * single {@link ServletWebServerFactory} bean within the {@link ApplicationContext}
  * itself. The {@link ServletWebServerFactory} is free to use standard Spring concepts
@@ -146,6 +152,11 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		}
 	}
 
+	/**
+	 * 最终继承自AbstractApplicationContext上下文对象，
+	 * 这样，最终在Spring应用内部执行到AbstactApplicationContext中的onRefresh()方法时，
+	 * WebApplicationContext相关的子类（比如此类）也会执行onRefresh()方法，此类的这个方法用于创建Web容器
+	 */
 	@Override
 	protected void onRefresh() {
 		super.onRefresh();
