@@ -20,6 +20,7 @@ import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 
 /**
+ * 可用于创建{@link WebServer}的工厂接口。
  * Factory interface that can be used to create a {@link WebServer}.
  *
  * @author Phillip Webb
@@ -30,6 +31,10 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 public interface ServletWebServerFactory {
 
 	/**
+	 * 获取新的完全配置但已暂停的{@link WebServer}实例。
+	 * 在调用{@link WebServer#start()}之前（当{@code ApplicationContext}已完全刷新时），
+	 * 客户端应该无法连接到返回的服务器。
+	 *
 	 * Gets a new fully configured but paused {@link WebServer} instance. Clients should
 	 * not be able to connect to the returned server until {@link WebServer#start()} is
 	 * called (which happens when the {@code ApplicationContext} has been fully

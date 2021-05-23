@@ -72,8 +72,8 @@ class ServletWebServerFactoryConfiguration {
 	@ConditionalOnClass({ Servlet.class, Tomcat.class, UpgradeProtocol.class })
 	/**
 	 * TomcatServletWebServerFactory、JettyServletWebServerFactory、UndertowServletWebServerFactory都是
-	 * ServletWebServerFactory接口的实现类，只有当Spring容器中不存在ServletWebServerFactory类型的容器时才进行这几类容器
-	 * 的加载
+	 * ServletWebServerFactory接口的实现类，只有当Spring容器中不存在ServletWebServerFactory类型的容器时才进行这个类
+	 * 的加载。这几个类负责生成
 	 */
 	@ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
 	static class EmbeddedTomcat {

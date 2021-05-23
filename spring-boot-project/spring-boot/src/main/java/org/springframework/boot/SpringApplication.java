@@ -307,11 +307,24 @@ public class SpringApplication {
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, applicationArguments);
 			configureIgnoreBeanInfo(environment);
+			/**
+			 * 准备Banner打印器
+			 */
 			Banner printedBanner = printBanner(environment);
+			/**
+			 * 创建Spring容器
+			 */
 			context = createApplicationContext();
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
 					new Class[] { ConfigurableApplicationContext.class }, context);
+			/**
+			 * Spring容器前置处理，这一步主要是在容器刷新之前的准备动作。
+			 * 包含一个非常关键的动作，将启动类注入容器，为后续开启自动化配置做好准备
+			 */
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
+			/**
+			 * 刷新容器
+			 */
 			refreshContext(context);
 			afterRefresh(context, applicationArguments);
 			stopWatch.stop();
