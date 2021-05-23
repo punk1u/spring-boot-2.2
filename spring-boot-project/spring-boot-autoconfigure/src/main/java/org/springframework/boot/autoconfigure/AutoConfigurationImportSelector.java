@@ -58,6 +58,10 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 用于实现Spring Boot自动配置的类
+ * 其中会加载spring.factories文件，加载Spring Boot内置的各种自动配置类以及
+ * 开发人员添加的各种组件和Spring Boot整合时需要用到的各种自动配置类
+ *
  * {@link DeferredImportSelector} to handle {@link EnableAutoConfiguration
  * auto-configuration}. This class can also be subclassed if a custom variant of
  * {@link EnableAutoConfiguration @EnableAutoConfiguration} is needed.

@@ -315,6 +315,7 @@ public class SpringApplication {
 			Banner printedBanner = printBanner(environment);
 			/**
 			 * 创建Spring容器
+			 * Spring Boot中默认的Servlet Web上下文对象为AnnotationConfigServletWebServerApplicationContext
 			 */
 			context = createApplicationContext();
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,

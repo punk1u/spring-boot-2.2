@@ -67,6 +67,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * 此上下文将通过在{@link ApplicationContext}本身中搜索单个{@link ServletWebServerFactory}bean来创建、初始化和运行{@link WebServer}。
  * {@link ServletWebServerFactory}可以自由使用标准的Spring概念（例如依赖注入、生命周期回调和属性占位符变量）。
  *
+ * 在Spring Boot中，默认使用这个类的子类AnnotationConfigServletWebServerApplicationContext作为Spring Boot的默认Web应用上下文对象
+ *
  * This context will create, initialize and run an {@link WebServer} by searching for a
  * single {@link ServletWebServerFactory} bean within the {@link ApplicationContext}
  * itself. The {@link ServletWebServerFactory} is free to use standard Spring concepts
@@ -161,6 +163,9 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	protected void onRefresh() {
 		super.onRefresh();
 		try {
+			/**
+			 * 创建web容器
+			 */
 			createWebServer();
 		}
 		catch (Throwable ex) {
@@ -186,10 +191,25 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	private void createWebServer() {
 		WebServer webServer = this.webServer;
 		ServletContext servletContext = getServletContext();
+		/**
+		 * 判断获取到的Web容器对象和Servlet上下文对象是否为空
+		 *
+		 * 如果是以jar包的方式启动,没有外部的ServletContext依赖，这里的servletContext为null，
+		 * Spring Boot项目的话会执行下面这段代码
+		 */
 		if (webServer == null && servletContext == null) {
+			/**
+			 * 从Spring容器中取出用于生成对应的WebServer的工厂bean对象
+			 */
 			ServletWebServerFactory factory = getWebServerFactory();
+			/**
+			 * 根据获取到的用于生成WebServer的工厂bean 生成对应的webServer并使用
+			 */
 			this.webServer = factory.getWebServer(getSelfInitializer());
 		}
+		/**
+		 * 如果是以打War包的方式的话，servletContext不为空，会执行下面这段代码
+		 */
 		else if (servletContext != null) {
 			try {
 				getSelfInitializer().onStartup(servletContext);
@@ -202,14 +222,23 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	}
 
 	/**
+	 * 返回应用于创建嵌入的{@link WebServer}的{@link ServletWebServerFactory}。
+	 * 默认情况下，此方法在上下文本身中搜索合适的bean。
+	 *
 	 * Returns the {@link ServletWebServerFactory} that should be used to create the
 	 * embedded {@link WebServer}. By default this method searches for a suitable bean in
 	 * the context itself.
 	 * @return a {@link ServletWebServerFactory} (never {@code null})
 	 */
 	protected ServletWebServerFactory getWebServerFactory() {
+		/**
+		 * 从Spring容器中找出对应的Servlet类型容器的工厂对象的bean名称集合
+		 */
 		// Use bean names so that we don't consider the hierarchy
 		String[] beanNames = getBeanFactory().getBeanNamesForType(ServletWebServerFactory.class);
+		/**
+		 * 正常情况下应该只有一个生成对应的WebServer的工厂bean对象，如果不是只有一个，抛出异常
+		 */
 		if (beanNames.length == 0) {
 			throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to missing "
 					+ "ServletWebServerFactory bean.");

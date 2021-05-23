@@ -35,6 +35,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
+ * {@link ServletWebServerApplicationContext}接受注解类作为输入，
+ * 特别是{@link org.springframework.context.annotation.Configuration@Configuration}注解类，
+ * 还包括使用{@code javax.inject}注解的普通{@link Component@Component}类和JSR-330兼容类。
+ * 允许逐个注册类（将类名指定为配置位置）以及类路径扫描（将基本包指定为配置位置）。
+ *
+ * Spring Boot默认使用这个类作为WebApplicationContext
+ *
  * {@link ServletWebServerApplicationContext} that accepts annotated classes as input - in
  * particular {@link org.springframework.context.annotation.Configuration @Configuration}
  * -annotated classes, but also plain {@link Component @Component} classes and JSR-330
