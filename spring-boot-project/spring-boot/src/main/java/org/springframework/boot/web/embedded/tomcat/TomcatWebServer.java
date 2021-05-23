@@ -100,6 +100,9 @@ public class TomcatWebServer implements WebServer {
 			try {
 				addInstanceIdToEngineName();
 
+				/**
+				 * 获取Apache Tomcat的应用上下文对象
+				 */
 				Context context = findContext();
 				context.addLifecycleListener((event) -> {
 					if (context.equals(event.getSource()) && Lifecycle.START_EVENT.equals(event.getType())) {
@@ -110,7 +113,7 @@ public class TomcatWebServer implements WebServer {
 				});
 
 				/**
-				 * 启动服务器以触发初始化监听器
+				 * 启动Apache Tomcat服务器以触发初始化监听器
 				 */
 				// Start the server to trigger initialization listeners
 				this.tomcat.start();
@@ -148,6 +151,10 @@ public class TomcatWebServer implements WebServer {
 		}
 	}
 
+	/**
+	 * 获取Apache Tomcat的应用上下文对象
+	 * @return
+	 */
 	private Context findContext() {
 		for (Container child : this.tomcat.getHost().findChildren()) {
 			if (child instanceof Context) {
