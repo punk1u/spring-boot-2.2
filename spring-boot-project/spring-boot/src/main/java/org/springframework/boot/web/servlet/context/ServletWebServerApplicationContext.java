@@ -209,6 +209,8 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		}
 		/**
 		 * 如果是以打War包的方式的话，servletContext不为空，会执行下面这段代码
+		 * servletContext会在SpringBootServletInitializer对象中生成，所以这里不为空。
+		 * SpringBootServletInitializer可用于通过war包形式打开Spring Boot应用
 		 */
 		else if (servletContext != null) {
 			try {
@@ -251,6 +253,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	}
 
 	/**
+	 * 返回将用于完成此{@link WebApplicationContext}的设置的{@link ServletContextInitializer}。
 	 * Returns the {@link ServletContextInitializer} that will be used to complete the
 	 * setup of this {@link WebApplicationContext}.
 	 * @return the self initializer
@@ -283,6 +286,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	}
 
 	/**
+	 * 返回应与嵌入式web服务器一起使用的{@link ServletContextInitializer}。默认情况下，此方法将首先尝试查找
 	 * Returns {@link ServletContextInitializer}s that should be used with the embedded
 	 * web server. By default this method will first attempt to find
 	 * {@link ServletContextInitializer}, {@link Servlet}, {@link Filter} and certain

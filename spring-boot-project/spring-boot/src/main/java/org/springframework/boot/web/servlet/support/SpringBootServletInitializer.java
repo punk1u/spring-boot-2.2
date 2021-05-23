@@ -47,10 +47,16 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
+ *
+ *
+ * 用于通过war包方式启动Spring Boot应用的类，启动类可以继承这个抽象类并重写configure方法以实现通过war包启动
+ *
  * An opinionated {@link WebApplicationInitializer} to run a {@link SpringApplication}
  * from a traditional WAR deployment. Binds {@link Servlet}, {@link Filter} and
  * {@link ServletContextInitializer} beans from the application context to the server.
  * <p>
+ *
+ *
  * To configure the application either override the
  * {@link #configure(SpringApplicationBuilder)} method (calling
  * {@link SpringApplicationBuilder#sources(Class...)}) or make the initializer itself a
@@ -89,6 +95,9 @@ public abstract class SpringBootServletInitializer implements WebApplicationInit
 		// Logger initialization is deferred in case an ordered
 		// LogServletContextInitializer is being used
 		this.logger = LogFactory.getLog(getClass());
+		/**
+		 * 创建Web应用上下文
+		 */
 		WebApplicationContext rootAppContext = createRootApplicationContext(servletContext);
 		if (rootAppContext != null) {
 			servletContext.addListener(new ContextLoaderListener(rootAppContext) {
@@ -113,6 +122,11 @@ public abstract class SpringBootServletInitializer implements WebApplicationInit
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, null);
 			builder.initializers(new ParentContextApplicationContextInitializer(parent));
 		}
+		/**
+		 * 把传进来的ServletContext参数构建进builder中，这样在ServletWebServerApplicationContext对象中的
+		 * 创建web容器的createWebServer()方法中就会判断到ServletContext不为空，而使用war包形式
+		 *
+		 */
 		builder.initializers(new ServletContextApplicationContextInitializer(servletContext));
 		builder.contextClass(AnnotationConfigServletWebServerApplicationContext.class);
 		builder = configure(builder);
