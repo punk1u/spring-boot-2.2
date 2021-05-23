@@ -290,6 +290,8 @@ public class SpringApplication {
 	}
 
 	/**
+	 *
+	 * 启动Spring Boot应用
 	 * Run the Spring application, creating and refreshing a new
 	 * {@link ApplicationContext}.
 	 * @param args the application arguments (usually passed from a Java main method)
@@ -572,6 +574,9 @@ public class SpringApplication {
 	}
 
 	/**
+	 * 用于创建{@link ApplicationContext}的策略方法。默认情况下，
+	 * 在返回到合适的默认值之前，此方法将尊重任何显式设置的应用程序上下文或应用程序上下文类。
+	 *
 	 * Strategy method used to create the {@link ApplicationContext}. By default this
 	 * method will respect any explicitly set application context or application context
 	 * class before falling back to a suitable default.
@@ -582,6 +587,9 @@ public class SpringApplication {
 		Class<?> contextClass = this.applicationContextClass;
 		if (contextClass == null) {
 			try {
+				/**
+				 * 根据当前的Web应用类型判断要创建的上下文对象类，SERVLET、REACTIVE还是默认的Spring上下文对象
+				 */
 				switch (this.webApplicationType) {
 				case SERVLET:
 					contextClass = Class.forName(DEFAULT_SERVLET_WEB_CONTEXT_CLASS);
@@ -1218,6 +1226,8 @@ public class SpringApplication {
 	}
 
 	/**
+	 * 可用于使用默认设置从指定源运行{@link SpringApplication}的静态帮助程序。
+	 * 即Spring Boot默认使用的启动方法
 	 * Static helper that can be used to run a {@link SpringApplication} from the
 	 * specified source using default settings.
 	 * @param primarySource the primary source to load
