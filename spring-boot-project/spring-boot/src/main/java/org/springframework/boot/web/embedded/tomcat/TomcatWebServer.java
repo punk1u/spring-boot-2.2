@@ -43,6 +43,9 @@ import org.springframework.boot.web.server.WebServerException;
 import org.springframework.util.Assert;
 
 /**
+ * {@link WebServer}，可用于控制Tomcat web服务器。
+ * 通常应该使用{@link TomcatServletWebServerFactory}的{@link TomcatReactiveWebServerFactory}创建此类，但不能直接创建。
+ *
  * {@link WebServer} that can be used to control a Tomcat web server. Usually this class
  * should be created using the {@link TomcatReactiveWebServerFactory} of
  * {@link TomcatServletWebServerFactory}, but not directly.

@@ -180,7 +180,9 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 			Registry.disableRegistry();
 		}
 		/**
-		 * 创建Tomcat实例
+		 * 创建Tomcat实例，这里的Tomcat类是Apache原生的Tomcat类，
+		 * 先构建出原生的Tomcat类，本方法最后再根据这个原生的Tomcat类构建
+		 * Spring Boot内置的用于和原生Tomcat整合的TomcatWebServer类
 		 */
 		Tomcat tomcat = new Tomcat();
 		/**
@@ -212,6 +214,10 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 		 * 将Web应用映射到一个TomcatEmbeddedContext，然后加入到Host中
 		 */
 		prepareContext(tomcat.getHost(), initializers);
+		/**
+		 * 根据上面构建出的原生的Apache的Tomcat类创建用于Spring Boot和Tomcat整合的
+		 * 关键类对象 TomcatWebServer
+		 */
 		return getTomcatWebServer(tomcat);
 	}
 
