@@ -75,9 +75,17 @@ public @interface SpringBootApplication {
 	String[] excludeName() default {};
 
 	/**
+	 * 用于扫描带注解组件的基本包路径数组。使用{@link #scanBasePackageClasses}作为基于字符串的包名的类型安全替代。
+	 *
 	 * Base packages to scan for annotated components. Use {@link #scanBasePackageClasses}
 	 * for a type-safe alternative to String-based package names.
 	 * <p>
+	 *
+	 * 此设置只是{@link ComponentScan@ComponentScan}的别名。
+	 * 它对{@code @Entity}扫描或Spring Data{@link Repository}扫描没有影响。
+	 * 对于这些，您应该添加{@link org.springframework.boot.autoconfigure.domain.EntityScan@EntityScan}
+	 * 和{@code@Enable…Repositories}注解。
+	 *
 	 * <strong>Note:</strong> this setting is an alias for
 	 * {@link ComponentScan @ComponentScan} only. It has no effect on {@code @Entity}
 	 * scanning or Spring Data {@link Repository} scanning. For those you should add
@@ -90,12 +98,20 @@ public @interface SpringBootApplication {
 	String[] scanBasePackages() default {};
 
 	/**
+	 * 类型安全替代{@link #scanBasePackages}，用于指定要扫描带注释组件的包。将扫描指定的每个类的包。
 	 * Type-safe alternative to {@link #scanBasePackages} for specifying the packages to
 	 * scan for annotated components. The package of each class specified will be scanned.
 	 * <p>
+	 *
+	 * 考虑在每个包中创建一个特殊的no-op标记类或接口，该类或接口除了被该属性引用之外没有其他用途。
 	 * Consider creating a special no-op marker class or interface in each package that
 	 * serves no purpose other than being referenced by this attribute.
 	 * <p>
+	 *
+	 * 此设置只是{@link ComponentScan@ComponentScan}的别名。
+	 * 它对{@code @Entity}扫描或Spring Data{@link Repository}扫描没有影响。
+	 * 对于这些，您应该添加{@link org.springframework.boot.autoconfigure.domain.EntityScan@EntityScan}
+	 * 和{@code@Enable…Repositories}注解。
 	 * <strong>Note:</strong> this setting is an alias for
 	 * {@link ComponentScan @ComponentScan} only. It has no effect on {@code @Entity}
 	 * scanning or Spring Data {@link Repository} scanning. For those you should add

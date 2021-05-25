@@ -45,6 +45,9 @@ public enum WebApplicationType {
 	 */
 	REACTIVE;
 
+	/**
+	 * 用于判断要使用的web环境是SERVLET环境的两个类的路径类名
+	 */
 	private static final String[] SERVLET_INDICATOR_CLASSES = { "javax.servlet.Servlet",
 			"org.springframework.web.context.ConfigurableWebApplicationContext" };
 
@@ -59,15 +62,25 @@ public enum WebApplicationType {
 	private static final String REACTIVE_APPLICATION_CONTEXT_CLASS = "org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext";
 
 	static WebApplicationType deduceFromClasspath() {
+		/**
+		 * 如果ClassPath中存在表示Reactive环境的相关class对象，且不存在表示Servlet环境的相关class对象，
+		 * 说明是Reactive的web环境
+		 */
 		if (ClassUtils.isPresent(WEBFLUX_INDICATOR_CLASS, null) && !ClassUtils.isPresent(WEBMVC_INDICATOR_CLASS, null)
 				&& !ClassUtils.isPresent(JERSEY_INDICATOR_CLASS, null)) {
 			return WebApplicationType.REACTIVE;
 		}
+		/**
+		 * 如果ClassPath中不存在表示Servlet环境的相关Class对象，说明既不是Reactive也不是Servlet，返回NONE
+		 */
 		for (String className : SERVLET_INDICATOR_CLASSES) {
 			if (!ClassUtils.isPresent(className, null)) {
 				return WebApplicationType.NONE;
 			}
 		}
+		/**
+		 * 说明是Servlet环境
+		 */
 		return WebApplicationType.SERVLET;
 	}
 

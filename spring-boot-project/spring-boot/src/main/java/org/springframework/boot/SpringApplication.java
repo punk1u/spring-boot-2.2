@@ -240,6 +240,10 @@ public class SpringApplication {
 	private boolean lazyInitialization = false;
 
 	/**
+	 * 创建一个新的{@link SpringApplication}实例。应用程序上下文将从指定的
+	 * 主要源加载bean（有关详细信息，请参阅{@link SpringApplication class-level}文档）。
+	 * 实例可以在调用之前进行自定义
+	 *
 	 * Create a new {@link SpringApplication} instance. The application context will load
 	 * beans from the specified primary sources (see {@link SpringApplication class-level}
 	 * documentation for details. The instance can be customized before calling
@@ -254,6 +258,10 @@ public class SpringApplication {
 	}
 
 	/**
+	 * 创建一个新的{@link SpringApplication}实例。应用程序上下文将从指定的
+	 * 主要源加载bean（有关详细信息，请参阅{@link SpringApplication class-level}文档）。
+	 * 实例可以在调用之前进行自定义
+	 *
 	 * Create a new {@link SpringApplication} instance. The application context will load
 	 * beans from the specified primary sources (see {@link SpringApplication class-level}
 	 * documentation for details. The instance can be customized before calling
@@ -265,17 +273,38 @@ public class SpringApplication {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
+		/**
+		 * Spring Boot使用默认启动方法启动时，传入的resourceLoader为空
+		 */
 		this.resourceLoader = resourceLoader;
 		Assert.notNull(primarySources, "PrimarySources must not be null");
+		/**
+		 * primarySources默认为Spring Boot的启动类
+		 */
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
+		/**
+		 * 推断web应用类型
+		 */
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
+		/**
+		 * 获取并设置在spring.factories中配置的ApplicationContextInitializer类型的应用监听器对象
+		 */
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
+		/**
+		 * 获取并设置在spring.factories中配置的ApplicationListener类型的应用监听器对象
+		 */
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
+		/**
+		 * 从栈调用轨迹获取main方法所在的Class类并配置应用main方法所在的类
+		 */
 		this.mainApplicationClass = deduceMainApplicationClass();
 	}
 
 	private Class<?> deduceMainApplicationClass() {
 		try {
+			/**
+			 * 从调用栈轨迹获取main方法所在的Class类
+			 */
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
 			for (StackTraceElement stackTraceElement : stackTrace) {
 				if ("main".equals(stackTraceElement.getMethodName())) {
@@ -298,6 +327,9 @@ public class SpringApplication {
 	 * @return a running {@link ApplicationContext}
 	 */
 	public ConfigurableApplicationContext run(String... args) {
+		/**
+		 * 创建一个任务执行观察器
+		 */
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		ConfigurableApplicationContext context = null;
@@ -432,15 +464,39 @@ public class SpringApplication {
 				getSpringFactoriesInstances(SpringApplicationRunListener.class, types, this, args));
 	}
 
+	/**
+	 * 在应用的classpath中查找并加载所有可用的指定类型的 bean对象
+	 * @param type
+	 * @param <T>
+	 * @return
+	 */
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type) {
 		return getSpringFactoriesInstances(type, new Class<?>[] {});
 	}
 
+	/**
+	 * 在应用的classpath中查找并加载所有在spring.factories配置的指定的type类型的可用的 bean对象
+	 * @param type
+	 * @param parameterTypes
+	 * @param args
+	 * @param <T>
+	 * @return
+	 */
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type, Class<?>[] parameterTypes, Object... args) {
 		ClassLoader classLoader = getClassLoader();
 		// Use names and ensure unique to protect against duplicates
+		/**
+		 * 获取当前ClassLoader下的所有META-INF/spring.factories自动配置 文件中配置的
+		 * 与传入的type参数表示的类型一致的的对象的全路径名
+		 */
 		Set<String> names = new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
+		/**
+		 * 根据上一步找出的给定类型的对象的全路径名，创建出其对应的实例
+		 */
 		List<T> instances = createSpringFactoriesInstances(type, parameterTypes, classLoader, args, names);
+		/**
+		 * 对实例的顺序进行排序
+		 */
 		AnnotationAwareOrderComparator.sort(instances);
 		return instances;
 	}
@@ -1229,17 +1285,24 @@ public class SpringApplication {
 	/**
 	 * 可用于使用默认设置从指定源运行{@link SpringApplication}的静态帮助程序。
 	 * 即Spring Boot默认使用的启动方法
+	 *
+	 *
 	 * Static helper that can be used to run a {@link SpringApplication} from the
 	 * specified source using default settings.
-	 * @param primarySource the primary source to load
+	 * @param primarySource the primary source to load 要加载的主要源
 	 * @param args the application arguments (usually passed from a Java main method)
 	 * @return the running {@link ApplicationContext}
 	 */
 	public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
+		/**
+		 * 可以在Spring Boot的启动类方法中直接调用下面的方法传入多个Spring配置类（@Configuration类）启动
+		 */
 		return run(new Class<?>[] { primarySource }, args);
 	}
 
 	/**
+	 * 静态帮助程序，可用于使用默认设置和用户提供的参数从指定源运行{@link SpringApplication}。
+	 *
 	 * Static helper that can be used to run a {@link SpringApplication} from the
 	 * specified sources using default settings and user supplied arguments.
 	 * @param primarySources the primary sources to load
