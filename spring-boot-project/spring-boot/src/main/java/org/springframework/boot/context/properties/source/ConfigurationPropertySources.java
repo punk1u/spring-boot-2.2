@@ -56,6 +56,11 @@ public final class ConfigurationPropertySources {
 	}
 
 	/**
+	 * 将{@link ConfigurationPropertySource}支持附加到指定的{@link Environment}。
+	 * 将环境管理的每个{@link PropertySource}调整为{@link ConfigurationPropertySource}，
+	 * 并允许经典的{@link PropertySourcesPropertyResolver}调用使用
+	 * {@link ConfigurationPropertyName configuration property names}进行解析。
+	 *
 	 * Attach a {@link ConfigurationPropertySource} support to the specified
 	 * {@link Environment}. Adapts each {@link PropertySource} managed by the environment
 	 * to a {@link ConfigurationPropertySource} and allows classic

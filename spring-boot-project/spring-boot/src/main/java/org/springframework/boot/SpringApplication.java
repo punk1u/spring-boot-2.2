@@ -331,15 +331,31 @@ public class SpringApplication {
 		 * 创建一个任务执行观察器
 		 */
 		StopWatch stopWatch = new StopWatch();
+		/**
+		 * 记录开始时间
+		 */
 		stopWatch.start();
 		ConfigurableApplicationContext context = null;
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
 		configureHeadlessProperty();
+		/**
+		 * 加载SpringApplicationRunListener监听器，该监听器用于监听SpringApplication的run方法
+		 */
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		listeners.starting();
 		try {
+			/**
+			 * 封装ApplicationArguments对象
+			 */
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
+			/**
+			 * 根据SpringApplicationRunListener和applicationArguments创建
+			 * 并配置当前Spring Boot应用将要使用的Environment
+			 */
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, applicationArguments);
+			/**
+			 * 根据环境信息配置要忽略的bean信息
+			 */
 			configureIgnoreBeanInfo(environment);
 			/**
 			 * 准备Banner打印器
@@ -348,8 +364,17 @@ public class SpringApplication {
 			/**
 			 * 创建Spring容器
 			 * Spring Boot中默认的Servlet Web上下文对象为AnnotationConfigServletWebServerApplicationContext
+			 *
+			 * 当SpringMVC存在的时候，就使用AnnotationConfigServletWebServerApplicationContext
+			 * 当SpringMVC不存在的时候，Spring WebFlux响应式存在的时候，使用AnnotationConfigReactiveWebServerApplicationContext
+			 * 如果以上都不是，默认就用AnnotationConfigApplicationContext
+			 * SpringApplication存在设置ApplicationContext的方法，在JUnit测试中使用SpringApplication通常要设置ApplicationContext
+			 *
 			 */
 			context = createApplicationContext();
+			/**
+			 * 加载SpringBootExceptionReposter对象
+			 */
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
 					new Class[] { ConfigurableApplicationContext.class }, context);
 			/**
@@ -361,12 +386,19 @@ public class SpringApplication {
 			 * 刷新容器
 			 */
 			refreshContext(context);
+			/**
+			 * 上下文刷新后调用该方法，目前没有操作
+			 */
 			afterRefresh(context, applicationArguments);
 			stopWatch.stop();
 			if (this.logStartupInfo) {
 				new StartupInfoLogger(this.mainApplicationClass).logStarted(getApplicationLog(), stopWatch);
 			}
 			listeners.started(context);
+			/**
+			 * 查找当前的ApplicationContext中是否注册有CommandLineRunner或者ApplicationRunner,
+			 * 如果有，就遍历执行他们。
+			 */
 			callRunners(context, applicationArguments);
 		}
 		catch (Throwable ex) {
@@ -384,12 +416,25 @@ public class SpringApplication {
 		return context;
 	}
 
+	/**
+	 * 根据SpringApplicationRunListener和applicationArguments创建
+	 * 并配置当前Spring Boot应用将要使用的Environment
+	 */
 	private ConfigurableEnvironment prepareEnvironment(SpringApplicationRunListeners listeners,
 			ApplicationArguments applicationArguments) {
 		// Create and configure the environment
+		/**
+		 * 获取或创建当前Spring Boot应用需要使用的Environment
+		 */
 		ConfigurableEnvironment environment = getOrCreateEnvironment();
+		/**
+		 * 使用启动方法传入的参数配置Environment
+		 */
 		configureEnvironment(environment, applicationArguments.getSourceArgs());
 		ConfigurationPropertySources.attach(environment);
+		/**
+		 * 通知相应的事件监听器当前Spring Boot应用使用的Environment准备好了
+		 */
 		listeners.environmentPrepared(environment);
 		bindToSpringApplication(environment);
 		if (!this.isCustomEnvironment) {
@@ -413,9 +458,22 @@ public class SpringApplication {
 
 	private void prepareContext(ConfigurableApplicationContext context, ConfigurableEnvironment environment,
 			SpringApplicationRunListeners listeners, ApplicationArguments applicationArguments, Banner printedBanner) {
+		/**
+		 * 设置应用上下文的环境信息
+		 */
 		context.setEnvironment(environment);
+		/**
+		 * 对 context 进行了预设置
+		 */
 		postProcessApplicationContext(context);
+		/**
+		 * 遍历调用这些ApplicationContextInitializer的initialize(applicationContext)方法来对
+		 * 已经创建好的ApplicationContext进行进一步的处理
+		 */
 		applyInitializers(context);
+		/**
+		 * 遍历调用SpringApplicationRunListener的contextPrepared()方法,通告SpringBoot应用使用的ApplicationContext准备好了
+		 */
 		listeners.contextPrepared(context);
 		if (this.logStartupInfo) {
 			logStartupInfo(context.getParent() == null);
@@ -437,7 +495,13 @@ public class SpringApplication {
 		// Load the sources
 		Set<Object> sources = getAllSources();
 		Assert.notEmpty(sources, "Sources must not be empty");
+		/**
+		 * 设置资源加载器，加载各种beans到ApplicationContext对象中
+		 */
 		load(context, sources.toArray(new Object[0]));
+		/**
+		 * 遍历调用SpringApplicationRunListener的contextLoaded()方法，通告ApplicationContext装填完毕
+		 */
 		listeners.contextLoaded(context);
 	}
 
@@ -458,6 +522,11 @@ public class SpringApplication {
 				System.getProperty(SYSTEM_PROPERTY_JAVA_AWT_HEADLESS, Boolean.toString(this.headless)));
 	}
 
+	/**
+	 * 加载SpringApplicationRunListener监听器
+	 * @param args
+	 * @return
+	 */
 	private SpringApplicationRunListeners getRunListeners(String[] args) {
 		Class<?>[] types = new Class<?>[] { SpringApplication.class, String[].class };
 		return new SpringApplicationRunListeners(logger,
@@ -646,6 +715,7 @@ public class SpringApplication {
 			try {
 				/**
 				 * 根据当前的Web应用类型判断要创建的上下文对象类，SERVLET、REACTIVE还是默认的Spring上下文对象
+				 * 这里的webApplicationType之前在通过构造方法创建SpringApplication的时候已经推断出来了
 				 */
 				switch (this.webApplicationType) {
 				case SERVLET:

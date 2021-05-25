@@ -22,6 +22,11 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
 /**
+ * {@link SpringApplication}的{@code run}方法的侦听器
+ * {@link SpringApplicationRunListener}是通过{@link SpringFactoriesLoader}加载的，
+ * 应该声明一个公共构造函数，该构造函数接受{@link SpringApplication}实例和{@code String[]}参数。
+ * 每次运行都将创建一个新的{@link SpringApplicationRunListener}实例
+ *
  * Listener for the {@link SpringApplication} {@code run} method.
  * {@link SpringApplicationRunListener}s are loaded via the {@link SpringFactoriesLoader}
  * and should declare a public constructor that accepts a {@link SpringApplication}
@@ -43,6 +48,7 @@ public interface SpringApplicationRunListener {
 	}
 
 	/**
+	 * 通知相应的事件监听器当前Spring Boot应用使用的Environment准备好了
 	 * Called once the environment has been prepared, but before the
 	 * {@link ApplicationContext} has been created.
 	 * @param environment the environment
