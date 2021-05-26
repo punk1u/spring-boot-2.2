@@ -345,7 +345,7 @@ public class SpringApplication {
 		listeners.starting();
 		try {
 			/**
-			 * 封装ApplicationArguments对象
+			 * 把启动时传入的参数封装成ApplicationArguments对象
 			 */
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
 			/**
@@ -358,7 +358,7 @@ public class SpringApplication {
 			 */
 			configureIgnoreBeanInfo(environment);
 			/**
-			 * 准备Banner打印器
+			 * 初始化Banner打印器并在控制台上进行打印
 			 */
 			Banner printedBanner = printBanner(environment);
 			/**
@@ -373,7 +373,7 @@ public class SpringApplication {
 			 */
 			context = createApplicationContext();
 			/**
-			 * 加载SpringBootExceptionReposter对象
+			 * 初始化SpringBootExceptionReporter对象
 			 */
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
 					new Class[] { ConfigurableApplicationContext.class }, context);
@@ -383,7 +383,9 @@ public class SpringApplication {
 			 */
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
 			/**
-			 * 刷新容器
+			 * 刷新容器，真正开始构造Spring的IOC容器
+			 * 这一步中会调用AbstactApplicationContext中的refresh()方法并最终调用到
+			 * ServletWebServerApplicationContext的onRefresh方法，用于创建web容器
 			 */
 			refreshContext(context);
 			/**
@@ -434,9 +436,17 @@ public class SpringApplication {
 		ConfigurationPropertySources.attach(environment);
 		/**
 		 * 通知相应的事件监听器当前Spring Boot应用使用的Environment准备好了
+		 * 注意：执行完这一步之后，application.properties（或者application.yml）中的配置信息就已经被加载进
+		 * Environment了
 		 */
 		listeners.environmentPrepared(environment);
+		/**
+		 * 把存储应用配置信息的Environment对象绑定到SpringApplication上
+		 */
 		bindToSpringApplication(environment);
+		/**
+		 * 判断是否是自定义Environment对象（正常情况下不是）
+		 */
 		if (!this.isCustomEnvironment) {
 			environment = new EnvironmentConverter(getClassLoader()).convertEnvironmentIfNecessary(environment,
 					deduceEnvironmentClass());
@@ -463,7 +473,7 @@ public class SpringApplication {
 		 */
 		context.setEnvironment(environment);
 		/**
-		 * 对 context 进行了预设置
+		 * 对 context 进行了预设置，向Spring容器中注入了一些Bean对象
 		 */
 		postProcessApplicationContext(context);
 		/**
@@ -593,6 +603,10 @@ public class SpringApplication {
 		if (this.environment != null) {
 			return this.environment;
 		}
+		/**
+		 * 如果尚不存在Environment环境，根据Web环境是Servlet还是Reactive，
+		 * 决定使用什么类型的Environment环境
+		 */
 		switch (this.webApplicationType) {
 		case SERVLET:
 			return new StandardServletEnvironment();
