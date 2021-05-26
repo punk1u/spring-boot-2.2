@@ -32,8 +32,12 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.ErrorHandler;
 
 /**
+ *
+ * 发布{@link SpringApplicationEvent}类型事件的{@link SpringApplicationRunListener}接口类型的监听器类
  * {@link SpringApplicationRunListener} to publish {@link SpringApplicationEvent}s.
  * <p>
+ *
+ * 对在实际刷新上下文之前激发的事件使用内部{@link ApplicationEventMulticaster}。
  * Uses an internal {@link ApplicationEventMulticaster} for the events that are fired
  * before the context is actually refreshed.
  *
