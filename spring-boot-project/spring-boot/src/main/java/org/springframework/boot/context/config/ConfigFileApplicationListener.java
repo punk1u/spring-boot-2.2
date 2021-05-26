@@ -171,9 +171,18 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 				|| ApplicationPreparedEvent.class.isAssignableFrom(eventType);
 	}
 
+	/**
+	 * 接收ApplicationEnvironmentPreparedEvent和ApplicationPreparedEvent两种事件类型的事件变更信息
+	 * 其中，ApplicationEnvironmentPreparedEvent事件是表示Environment已处于可用状态的事件对象，
+	 * ApplicationPreparedEvent是表示应用上下文已处于可用状态的对象
+	 * @param event
+	 */
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {
+			/**
+			 * 从各个配置来源加载配置信息，并将获取到的配置信息添加到Environment中
+			 */
 			onApplicationEnvironmentPreparedEvent((ApplicationEnvironmentPreparedEvent) event);
 		}
 		if (event instanceof ApplicationPreparedEvent) {
@@ -181,11 +190,21 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 		}
 	}
 
+	/**
+	 * 从各个配置来源加载配置信息，并将获取到的配置信息添加到Environment中
+	 * @param event
+	 */
 	private void onApplicationEnvironmentPreparedEvent(ApplicationEnvironmentPreparedEvent event) {
+		/**
+		 * 获取ClassPath下所有的EnvironmentPostProcessor类型的bean对象
+		 */
 		List<EnvironmentPostProcessor> postProcessors = loadPostProcessors();
 		postProcessors.add(this);
 		AnnotationAwareOrderComparator.sort(postProcessors);
 		for (EnvironmentPostProcessor postProcessor : postProcessors) {
+			/**
+			 * 调用每个EnvironmentPostProcessor的相应的读取配置信息并添加进Environment的方法
+			 */
 			postProcessor.postProcessEnvironment(event.getEnvironment(), event.getSpringApplication());
 		}
 	}

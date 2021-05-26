@@ -79,6 +79,14 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 
 	@Override
 	public void environmentPrepared(ConfigurableEnvironment environment) {
+		/**
+		 * 发布一个Environment已处于可用状态的事件，这里使用ApplicationEnvironmentPreparedEvent
+		 * 作为表示Environment可用的事件对象
+		 *
+		 * 这里发布完ApplicationEnvironmentPreparedEvent这个表示Environment已经可用的事件后，
+		 * 最终接收到事件并读取相应的配置源中的配置信息并添加进Environment的是ConfigFileApplicationListener这个事件监听器
+		 * 实现类中的onApplicationEvent方法。在这个方法中找出所有的EnvironmentPostProcessor
+		 */
 		this.initialMulticaster
 				.multicastEvent(new ApplicationEnvironmentPreparedEvent(this.application, this.args, environment));
 	}
