@@ -21,13 +21,20 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
 /**
+ * 允许在刷新应用程序上下文之前自定义应用程序的{@link Environment}。
  * Allows for customization of the application's {@link Environment} prior to the
  * application context being refreshed.
  * <p>
+ *
+ * EnvironmentPostProcessor实现必须在{@code META-INF/spring.factories}中注册，使用此类的完全限定名作为键。
  * EnvironmentPostProcessor implementations have to be registered in
  * {@code META-INF/spring.factories}, using the fully qualified name of this class as the
  * key.
  * <p>
+ *
+ * {@code EnvironmentPostProcessor}鼓励处理器检测Spring的{@link org.springframework.core.Ordered}接口是否已实现，
+ * 或者{@link org.springframework.core.annotation.Order@Order}注解是否存在，并在调用前对实例进行相应排序。
+ *
  * {@code EnvironmentPostProcessor} processors are encouraged to detect whether Spring's
  * {@link org.springframework.core.Ordered Ordered} interface has been implemented or if
  * the {@link org.springframework.core.annotation.Order @Order} annotation is present and

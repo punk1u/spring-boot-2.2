@@ -438,6 +438,8 @@ public class SpringApplication {
 		 * 通知相应的事件监听器当前Spring Boot应用使用的Environment准备好了
 		 * 注意：执行完这一步之后，application.properties（或者application.yml）中的配置信息就已经被加载进
 		 * Environment了
+		 *
+		 * Nacos与Spring Boot的整合就是通过这个事件监听器实现的，其内部使用了EnvironmentPostProcessor
 		 */
 		listeners.environmentPrepared(environment);
 		/**
@@ -633,6 +635,9 @@ public class SpringApplication {
 			ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 			environment.setConversionService((ConfigurableConversionService) conversionService);
 		}
+		/**
+		 * 加载一些基本的环境变量，例如System.setProperties之类的环境变量值
+		 */
 		configurePropertySources(environment, args);
 		configureProfiles(environment, args);
 	}
